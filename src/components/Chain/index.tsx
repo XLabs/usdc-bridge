@@ -1,4 +1,4 @@
-import styles from "@/styles/Home.module.scss";
+import styles from "@/components/Chain/Chain.module.scss";
 import { IChain } from "@/types";
 import Image from "next/image";
 import { useEffect, useState } from "react";

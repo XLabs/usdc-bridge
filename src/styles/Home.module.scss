@@ -40,6 +40,11 @@
     }
 
     .title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 6px;
       opacity: 0.85;
       margin-bottom: 1rem;
     }
@@ -103,23 +108,6 @@
       .chainText {
         font-size: 18px;
         margin-bottom: 0.5vh;
-      }
-
-      .chainContainer {
-        transition: opacity 0.2s ease-out;
-
-        width: 85%;
-        height: 5vh;
-        background-color: rgba(var(--foreground-rgb), 0.05);
-        border-radius: 4px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        .chainImg {
-          margin-right: 12px;
-        }
       }
     }
   }

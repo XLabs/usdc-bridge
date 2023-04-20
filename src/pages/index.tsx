@@ -23,7 +23,11 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={`${styles.center} ${inter.className}`}>
-          <h2 className={styles.title}>USDC Bridge</h2>
+          <h2 className={styles.title}>
+            <Image alt="USDC icon" width={24} height={24} src="/usdc.png" />
+            <span>USDC Bridge</span>
+            <Image alt="USDC icon" width={24} height={24} src="/usdc.png" />
+          </h2>
 
           <div className={styles.container}>
             <div className={styles.chainText}>Source</div>

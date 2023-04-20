@@ -1,0 +1,16 @@
+.chainContainer {
+  transition: opacity 0.2s ease-out;
+
+  width: 85%;
+  height: 5vh;
+  background-color: rgba(var(--foreground-rgb), 0.05);
+  border-radius: 4px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .chainImg {
+    margin-right: 12px;
+  }
+}
