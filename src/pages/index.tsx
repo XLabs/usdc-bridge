@@ -5,8 +5,17 @@ import styles from "@/styles/Home.module.scss";
 import { useState } from "react";
 import { IChain } from "@/types";
 import Chain from "@/components/Chain";
+import ExchangeChains from "@/components/ExchangeChains";
+
+// import { WalletContextProvider } from "@xlabs-libs/wallet-aggregator-react";
+// import { CHAIN_ID_ETH } from "@xlabs-libs/wallet-aggregator-core";
+// import { MetamaskWallet } from "@xlabs-libs/wallet-aggregator-evm";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// const AGGREGATOR_WALLETS = {
+//   [CHAIN_ID_ETH]: [new MetamaskWallet()],
+// };
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
@@ -33,20 +42,7 @@ export default function Home() {
             <div className={styles.chainText}>Source</div>
             <Chain source={source} initial="AVAX" />
 
-            <div
-              className={styles.exchange}
-              onClick={changeSource}
-              style={{
-                transform: `rotate(${source === "AVAX" ? 90 : 270}deg)`,
-              }}
-            >
-              <Image
-                alt="Exchange source and destination chains"
-                src="/exchange.png"
-                width={30}
-                height={30}
-              />
-            </div>
+            <ExchangeChains onClick={changeSource} source={source} />
 
             <div className={styles.chainText}>Destination</div>
             <Chain source={source} initial="ETH" />

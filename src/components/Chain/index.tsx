@@ -36,7 +36,7 @@ const Chain = ({ source, initial }: Props) => {
         src={imgSrc}
         width={24}
         height={24}
-        alt={`${isAVAX ? "Avalanche" : "Ethereum"} icon`}
+        alt={`${txt} icon`}
         className={styles.chainImg}
       />
       <span>{txt}</span>
