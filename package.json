@@ -23,6 +23,8 @@
     "typescript": "5.0.4"
   },
   "devDependencies": {
+    "esm": "^3.2.25",
     "sass": "^1.62.0"
-  }
+  },
+  "require": "esm"
 }

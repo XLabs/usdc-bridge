@@ -7,22 +7,22 @@ import { IChain } from "@/types";
 import Chain from "@/components/Chain";
 import ExchangeChains from "@/components/ExchangeChains";
 
-// import { WalletContextProvider } from "@xlabs-libs/wallet-aggregator-react";
-// import { CHAIN_ID_ETH } from "@xlabs-libs/wallet-aggregator-core";
-// import { MetamaskWallet } from "@xlabs-libs/wallet-aggregator-evm";
+import { WalletContextProvider } from "@xlabs-libs/wallet-aggregator-react";
+import { CHAIN_ID_ETH } from "@xlabs-libs/wallet-aggregator-core";
+import { MetamaskWallet } from "@xlabs-libs/wallet-aggregator-evm";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// const AGGREGATOR_WALLETS = {
-//   [CHAIN_ID_ETH]: [new MetamaskWallet()],
-// };
+const AGGREGATOR_WALLETS = {
+  [CHAIN_ID_ETH]: [new MetamaskWallet()],
+};
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
   const changeSource = () => setSource(source === "AVAX" ? "ETH" : "AVAX");
 
   return (
-    <>
+    <WalletContextProvider wallets={AGGREGATOR_WALLETS}>
       <Head>
         <title>USDC Bridge</title>
         <meta name="description" content="USDC bridge developed by xLabs" />
@@ -53,6 +53,6 @@ export default function Home() {
           </div>
         </div>
       </main>
-    </>
+    </WalletContextProvider>
   );
 }
