@@ -1,34 +1,25 @@
-@import "@/styles/breakpoints.scss";
+@import "@/styles/rules.scss";
 
 .main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 6rem;
   min-height: 100vh;
 
   .center {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
-    padding: 4rem 0;
-
-    @include tablet {
-      padding: 8rem 0 6rem;
-
-      &::before {
-        transform: none;
-        height: 300px;
-      }
-    }
+    padding: 3rem 0;
 
     &::before {
       background: var(--secondary-glow);
       border-radius: 50%;
-      width: 480px;
-      height: 360px;
+      width: 55vw;
+      height: 40vh;
       margin-left: -400px;
     }
 
@@ -46,6 +37,90 @@
       position: absolute;
       filter: blur(45px);
       transform: translateZ(0);
+    }
+
+    .title {
+      opacity: 0.85;
+      margin-bottom: 1rem;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      z-index: 2;
+
+      align-items: center;
+      background-color: rgba(var(--foreground-rgb), 0.1);
+      border-radius: 8px;
+      padding: 1rem;
+
+      height: 80vh;
+      width: 85vw;
+      @include tablet {
+        width: 720px;
+      }
+      @include bigDesktop {
+        width: 920px;
+      }
+
+      button {
+        width: 100%;
+        border: 0px;
+        border-radius: 4px;
+        height: 3vh;
+        margin-top: 3vh;
+        font-size: 16px;
+        cursor: pointer;
+        background-color: rgba(var(--foreground-rgb), 0.05);
+
+        &:hover {
+          background-color: rgba(var(--foreground-rgb), 0.1);
+        }
+      }
+
+      .exchange {
+        cursor: pointer;
+        display: flex;
+        border-radius: 50%;
+        justify-content: center;
+        align-items: center;
+        margin: 1vh 0px;
+        transition: transform 0.4s ease-out;
+
+        @include dark {
+          filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(132deg)
+            brightness(103%) contrast(103%);
+        }
+
+        &:hover {
+          background-color: rgba(var(--foreground-rgb), 0.1);
+          @include dark {
+            background-color: rgba(var(--foreground-rgb), 0.5);
+          }
+        }
+      }
+
+      .chainText {
+        font-size: 18px;
+        margin-bottom: 0.5vh;
+      }
+
+      .chainContainer {
+        transition: opacity 0.2s ease-out;
+
+        width: 85%;
+        height: 5vh;
+        background-color: rgba(var(--foreground-rgb), 0.05);
+        border-radius: 4px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .chainImg {
+          margin-right: 12px;
+        }
+      }
     }
   }
 }
