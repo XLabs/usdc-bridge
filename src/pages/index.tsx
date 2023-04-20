@@ -2,10 +2,15 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.scss";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IChain } from "@/types";
 import Chain from "@/components/Chain";
 import ExchangeChains from "@/components/ExchangeChains";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { InjectedConnector } from "wagmi/connectors/injected";
+
+// import { configureChains, mainnet } from "@wagmi/core";
+// import { publicProvider } from '@wagmi/core/providers/public';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,9 +18,32 @@ export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
   const changeSource = () => setSource(source === "AVAX" ? "ETH" : "AVAX");
 
-  const connectWallet = () => {
-    console.log("caquta");
+  const { address, isConnected } = useAccount();
+
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  });
+
+  const { disconnect } = useDisconnect();
+
+  const handleWallet = () => {
+    if (isConnected) {
+      disconnect();
+    } else {
+      connect();
+    }
   };
+
+  const [connectWalletTxt, setConnectWalletTxt] = useState("...");
+  const [walletTxt, setWalletTxt] = useState<any>("...");
+
+  useEffect(() => {
+    console.log("address", address);
+    console.log("isConnected", isConnected);
+
+    setConnectWalletTxt(isConnected ? "Disconnect" : "Connect");
+    setWalletTxt(isConnected ? address : "Connect Wallet");
+  }, [address, isConnected]);
 
   return (
     <>
@@ -26,13 +54,23 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
-        <div className={`${styles.center} ${inter.className}`}>
+      <main className={`${styles.main} ${inter.className}`}>
+        <header className={styles.header}>
+          <Image alt="stable logo" width={120} height={30} src="/stable.png" />
+          <button onClick={() => !isConnected && handleWallet()}>
+            {walletTxt}
+          </button>
+        </header>
+
+        <div className={styles.center}>
           <h2 className={styles.title}>
-            <Image alt="USDC icon" width={24} height={24} src="/usdc.png" />
+            <Image alt="USDC icon" width={42} height={42} src="/usdc.png" />
             <span>USDC Bridge</span>
-            <Image alt="USDC icon" width={24} height={24} src="/usdc.png" />
           </h2>
+          <h3 className={styles.subtitle}>
+            The official way to bridge and send native USDC between Ethereum and
+            Avalanche
+          </h3>
 
           <div className={styles.container}>
             <div className={styles.chainText}>Source</div>
@@ -43,7 +81,7 @@ export default function Home() {
             <div className={styles.chainText}>Destination</div>
             <Chain source={source} initial="ETH" />
 
-            <button onClick={connectWallet}>Connect Wallet</button>
+            <button onClick={handleWallet}>{connectWalletTxt} Wallet</button>
 
             {/* <div>Source Balance</div> */}
           </div>

@@ -1,5 +1,41 @@
 @import "@/styles/rules.scss";
 
+.header {
+  width: 100%;
+  height: 6vh;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  background-color: rgba(var(--foreground-rgb), 0.1);
+  border-bottom: 2px solid rgb(var(--foreground-rgb));
+
+  img {
+    margin-left: 2%;
+
+    filter: invert(1);
+    @include dark {
+      filter: invert(0);
+    }
+  }
+
+  button {
+    max-width: 40vw;
+    height: 4vh;
+    padding: 0px 16px;
+    margin-right: 2%;
+
+    border: 0px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    background-color: rgb(var(--foreground-rgb));
+    color: rgb(var(--background-end-rgb));
+    font-size: 16px;
+  }
+}
+
 .main {
   display: flex;
   flex-direction: column;
@@ -43,13 +79,23 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 42px;
 
-      gap: 6px;
+      gap: 12px;
       opacity: 0.85;
       margin-bottom: 1rem;
       img {
         user-select: none;
       }
+    }
+
+    .subtitle {
+      font-size: 18px;
+      font-weight: 300;
+      margin-bottom: 3vh;
+      margin-left: 10vw;
+      margin-right: 10vw;
+      text-align: center;
     }
 
     .container {
