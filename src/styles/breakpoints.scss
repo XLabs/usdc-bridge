@@ -1,0 +1,21 @@
+$tabletBreakpoint: 744px;
+$desktopBreakpoint: 1024px;
+$bigDesktopBreakpoint: 1440px;
+
+@mixin tablet {
+  @media only screen and (min-width: $tabletBreakpoint) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media only screen and (min-width: $desktopBreakpoint) {
+    @content;
+  }
+}
+
+@mixin bigDesktop {
+  @media only screen and (min-width: $bigDesktopBreakpoint) {
+    @content;
+  }
+}
