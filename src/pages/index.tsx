@@ -2,15 +2,12 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.scss";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { IChain } from "@/types";
 import Chain from "@/components/Chain";
 import ExchangeChains from "@/components/ExchangeChains";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-
-// import { configureChains, mainnet } from "@wagmi/core";
-// import { publicProvider } from '@wagmi/core/providers/public';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,11 +17,13 @@ export default function Home() {
 
   const { address, isConnected } = useAccount();
 
-  const { connect } = useConnect({
-    connector: new InjectedConnector(),
-  });
-
+  const { connect } = useConnect({ connector: new InjectedConnector() });
   const { disconnect } = useDisconnect();
+
+  const { data } = useBalance({
+    address: address,
+    token: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F", // USDC Token
+  });
 
   const handleWallet = () => {
     if (isConnected) {
@@ -36,14 +35,42 @@ export default function Home() {
 
   const [connectWalletTxt, setConnectWalletTxt] = useState("...");
   const [walletTxt, setWalletTxt] = useState<any>("...");
+  const [amount, setAmount] = useState("0");
 
   useEffect(() => {
     console.log("address", address);
     console.log("isConnected", isConnected);
+    console.log("data", data);
 
     setConnectWalletTxt(isConnected ? "Disconnect" : "Connect");
-    setWalletTxt(isConnected ? address : "Connect Wallet");
-  }, [address, isConnected]);
+    setWalletTxt(
+      isConnected
+        ? `${address?.slice(0, 6)}...${address?.slice(-6)}`
+        : "Connect Wallet"
+    );
+  }, [address, isConnected, data]);
+
+  const handleAmountChange = (ev: ChangeEvent<HTMLInputElement>) => {
+    // valid number regex
+    if (/^\d+(\.\d*)?$/.exec(ev.target.value)) {
+      let newValue = ev.target.value;
+      let [integers, decimals] = newValue.split(".");
+
+      if (Number(integers) > 9999999) {
+        newValue = "9999999";
+      }
+
+      if (decimals && decimals.length > 5) {
+        newValue = `${integers}.${decimals.slice(0, 5)}`;
+      }
+
+      setAmount(newValue);
+    } else if (ev.target.value === "") {
+      setAmount("0");
+    }
+  };
+
+  const amountInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -73,17 +100,47 @@ export default function Home() {
           </h3>
 
           <div className={styles.container}>
-            <div className={styles.chainText}>Source</div>
-            <Chain source={source} initial="AVAX" />
+            <div className={styles.fromToContainer}>
+              <div className={styles.chain}>
+                <div className={styles.boxText}>From</div>
+                <Chain source={source} initial="AVAX" />
+              </div>
 
-            <ExchangeChains onClick={changeSource} source={source} />
+              <ExchangeChains onClick={changeSource} source={source} />
 
-            <div className={styles.chainText}>Destination</div>
-            <Chain source={source} initial="ETH" />
+              <div className={styles.chain}>
+                <div className={styles.boxText}>To</div>
+                <Chain source={source} initial="ETH" />
+              </div>
+            </div>
 
-            <button onClick={handleWallet}>{connectWalletTxt} Wallet</button>
+            <div className={styles.boxText}>Amount</div>
+            <div className={styles.usdcInputContainer}>
+              <input
+                value={amount}
+                onChange={handleAmountChange}
+                ref={amountInputRef}
+                onClick={() =>
+                  amount === "0" && amountInputRef.current?.select()
+                }
+              />
+              <div className={styles.usdcText}>
+                <Image alt="USDC icon" width={26} height={26} src="/usdc.png" />
+                <span>USDC</span>
+              </div>
+            </div>
+          </div>
 
-            {/* <div>Source Balance</div> */}
+          {/* <button onClick={handleWallet}>{connectWalletTxt} Wallet</button> */}
+
+          <div className={styles.poweredBy}>
+            <span>Powered by </span>
+            <Image
+              alt="Powered by Circle"
+              src="/circle.png"
+              width={120}
+              height={30}
+            />
           </div>
         </div>
       </main>

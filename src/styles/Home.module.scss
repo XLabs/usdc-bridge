@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: space-between;
 
-  background-color: rgba(var(--foreground-rgb), 0.1);
+  background-color: rgba(var(--foreground-rgb), 0.05);
   border-bottom: 2px solid rgb(var(--foreground-rgb));
 
   img {
@@ -21,6 +21,7 @@
   }
 
   button {
+    width: 200px;
     max-width: 40vw;
     height: 4vh;
     padding: 0px 16px;
@@ -49,7 +50,8 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    padding: 3rem 0;
+    padding-top: 3rem;
+    padding-bottom: 1rem;
 
     &::before {
       background: var(--secondary-glow);
@@ -103,12 +105,11 @@
       flex-direction: column;
       z-index: 2;
 
-      align-items: center;
       background-color: rgba(var(--foreground-rgb), 0.1);
       border-radius: 8px;
       padding: 1rem;
 
-      height: 80vh;
+      height: 75vh;
       width: 85vw;
       @include tablet {
         width: 720px;
@@ -117,10 +118,22 @@
         width: 920px;
       }
 
+      .fromToContainer {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .chain {
+        display: flex;
+        flex-direction: column;
+        width: 40vw;
+        font-weight: 500;
+      }
+
       button {
-        width: 100%;
+        // width: 100%;
         border: 0px;
-        border-radius: 4px;
+        border-radius: 6px;
         height: 3vh;
         margin-top: 3vh;
         font-size: 16px;
@@ -131,10 +144,65 @@
           background-color: rgba(var(--foreground-rgb), 0.1);
         }
       }
+    }
 
-      .chainText {
+    .boxText {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 0.5vh;
+    }
+
+    .usdcInputContainer {
+      width: 100%;
+      background-color: rgba(var(--foreground-rgb), 0.05);
+      border-radius: 6px;
+      height: 42px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+
+      input {
+        background-color: transparent;
+        width: 80%;
+        margin-left: 1%;
+
         font-size: 18px;
-        margin-bottom: 0.5vh;
+        font-weight: 500;
+
+        border: 0px;
+        &:focus {
+          outline: 0px;
+        }
+      }
+
+      .usdcText {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        margin-right: 2%;
+        gap: 8px;
+
+        font-size: 16px;
+        font-weight: 500;
+      }
+    }
+
+    .poweredBy {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      margin-top: 1vh;
+      gap: 8px;
+
+      span {
+        font-size: 18px;
+      }
+
+      img {
+        @include dark {
+          filter: invert(1) brightness(100);
+        }
       }
     }
   }

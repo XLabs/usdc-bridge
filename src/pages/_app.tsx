@@ -1,12 +1,20 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { WagmiConfig, createClient } from "wagmi";
+import { WagmiConfig, configureChains, createClient } from "wagmi";
 import { getDefaultProvider } from "ethers";
+import { publicProvider } from "wagmi/providers/public";
+import { avalanche, avalancheFuji, mainnet, goerli } from "wagmi/chains";
 
 export default function App({ Component, pageProps }: AppProps) {
+  const { chains, provider, webSocketProvider } = configureChains(
+    [goerli, mainnet, avalancheFuji, avalanche],
+    [publicProvider()]
+  );
+
   const client = createClient({
-    autoConnect: true,
-    provider: getDefaultProvider(),
+    autoConnect: false,
+    provider: provider,
+    webSocketProvider,
   });
 
   return (

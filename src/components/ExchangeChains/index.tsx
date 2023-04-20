@@ -13,7 +13,7 @@ const ExchangeChains = ({ onClick, source }: Props) => {
       className={styles.exchange}
       onClick={onClick}
       style={{
-        transform: `rotate(${source === "AVAX" ? 90 : 270}deg)`,
+        transform: `rotate(${source === "AVAX" ? 0 : 180}deg)`,
       }}
     >
       <Image
