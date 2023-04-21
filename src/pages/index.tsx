@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Image from "next/image";
 import { Manrope } from "next/font/google";
 import styles from "./app.module.scss";
 import { useEffect, useState } from "react";
@@ -8,6 +7,7 @@ import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
 import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import Image from "@/components/atoms/Image";
 import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 

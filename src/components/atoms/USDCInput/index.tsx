@@ -1,6 +1,6 @@
 import { ChangeEvent, useRef } from "react";
 import styles from "./USDCInput.module.scss";
-import Image from "next/image";
+import Image from "@/components/atoms/Image";
 
 type Props = {
   value: string;

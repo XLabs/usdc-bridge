@@ -6,9 +6,9 @@ const nextConfig = {
   basePath: isDeploying ? "/usdc-bridge" : "",
   basePath: isDeploying ? "/usdc-bridge" : "",
   images: {
-    unoptimized: isDeploying ? true : false
+    unoptimized: isDeploying ? true : false,
   },
-  output: 'export'
+  output: isDeploying ? 'export' : 'standalone',
 }
 
 module.exports = nextConfig

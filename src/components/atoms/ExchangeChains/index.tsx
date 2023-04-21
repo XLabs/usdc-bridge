@@ -1,6 +1,6 @@
 import styles from "./ExchangeChains.module.scss";
 import { IChain } from "@/types";
-import Image from "next/image";
+import Image from "@/components/atoms/Image";
 
 type Props = {
   onClick: () => void;
