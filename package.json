@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "DEPLOY=deploy npm run build && touch out/.nojekyll && npx push-dir --dir=out --branch=gh-pages --cleanup --verbose"
   },
   "dependencies": {
     "@types/node": "18.15.12",
