@@ -1,15 +1,16 @@
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.scss";
+import styles from "./app.module.scss";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { IChain } from "@/types";
-import Chain from "@/components/Chain";
-import ExchangeChains from "@/components/ExchangeChains";
+import Chain from "@/components/molecules/Chain";
+import ExchangeChains from "@/components/atoms/ExchangeChains";
 import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 const inter = Inter({ subsets: ["latin"] });
+const TRANSACTION_LIMIT = 99999999;
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
@@ -56,10 +57,12 @@ export default function Home() {
       let newValue = ev.target.value;
       let [integers, decimals] = newValue.split(".");
 
-      if (Number(integers) > 9999999) {
-        newValue = "9999999";
+      // no more than TRANSACTION_LIMIT
+      if (Number(integers) > TRANSACTION_LIMIT) {
+        newValue = integers.slice(0, `${TRANSACTION_LIMIT}`.length);
       }
 
+      // no more than 5 decimals
       if (decimals && decimals.length > 5) {
         newValue = `${integers}.${decimals.slice(0, 5)}`;
       }
@@ -103,14 +106,14 @@ export default function Home() {
             <div className={styles.fromToContainer}>
               <div className={styles.chain}>
                 <div className={styles.boxText}>From</div>
-                <Chain source={source} initial="AVAX" />
+                <Chain source={source} setSource={setSource} initial="AVAX" />
               </div>
 
               <ExchangeChains onClick={changeSource} source={source} />
 
               <div className={styles.chain}>
                 <div className={styles.boxText}>To</div>
-                <Chain source={source} initial="ETH" />
+                <Chain source={source} setSource={setSource} initial="ETH" />
               </div>
             </div>
 

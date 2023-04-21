@@ -8,7 +8,17 @@
   align-items: center;
   justify-content: space-between;
 
-  background-color: rgba(var(--foreground-rgb), 0.05);
+  // background-color: rgba(var(--foreground-rgb), 0.05);
+  background: linear-gradient(
+    rgba(var(--card-rgb), 0.1),
+    rgba(var(--background-end-rgb), 1)
+  );
+  @include dark {
+    background: linear-gradient(
+      rgba(var(--background-end-rgb), 0.5),
+      rgba(var(--foreground-rgb), 0)
+    );
+  }
   border-bottom: 2px solid rgb(var(--foreground-rgb));
 
   img {
@@ -43,6 +53,7 @@
   justify-content: space-between;
   align-items: center;
   min-height: 100vh;
+  background: var(--terciary-glow);
 
   .center {
     display: flex;
@@ -58,7 +69,7 @@
       border-radius: 50%;
       width: 55vw;
       height: 40vh;
-      margin-left: -400px;
+      margin-left: -250px;
     }
 
     &::after {
@@ -71,7 +82,7 @@
     &::before,
     &::after {
       content: "";
-      left: 50%;
+      left: 55%;
       position: absolute;
       filter: blur(45px);
       transform: translateZ(0);
@@ -105,7 +116,9 @@
       flex-direction: column;
       z-index: 2;
 
-      background-color: rgba(var(--foreground-rgb), 0.1);
+      background-color: rgba(var(--card-rgb), 0.1);
+      box-shadow: inset 0px 0px 4px 1px rgba(var(--foreground-rgb), 0.2);
+
       border-radius: 8px;
       padding: 1rem;
 
@@ -138,10 +151,10 @@
         margin-top: 3vh;
         font-size: 16px;
         cursor: pointer;
-        background-color: rgba(var(--foreground-rgb), 0.05);
+        background-color: rgba(var(--card-rgb), 0.05);
 
         &:hover {
-          background-color: rgba(var(--foreground-rgb), 0.1);
+          background-color: rgba(var(--card-rgb), 0.1);
         }
       }
     }
@@ -154,7 +167,7 @@
 
     .usdcInputContainer {
       width: 100%;
-      background-color: rgba(var(--foreground-rgb), 0.05);
+      background-color: rgba(var(--card-rgb), 0.1);
       border-radius: 6px;
       height: 42px;
       display: flex;
@@ -164,7 +177,7 @@
       input {
         background-color: transparent;
         width: 80%;
-        margin-left: 1%;
+        margin-left: 16px;
 
         font-size: 18px;
         font-weight: 500;
@@ -179,7 +192,7 @@
         display: flex;
         flex-direction: row;
         align-items: center;
-        margin-right: 2%;
+        margin-right: 16px;
         gap: 8px;
 
         font-size: 16px;

@@ -1,0 +1,62 @@
+@import "@/styles/rules.scss";
+
+.chainContainer {
+  width: 100%;
+  height: 5vh;
+  background-color: rgba(var(--foreground-rgb), 0.05);
+  border-radius: 4px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  user-select: none;
+
+  .chainImg {
+    user-select: none;
+    margin-left: 6px;
+    margin-right: 6px;
+    @include tablet {
+      margin-right: 12px;
+    }
+  }
+
+  span {
+    margin-right: 0px;
+    @include tablet {
+      margin-right: 12px;
+    }
+  }
+
+  .chainSelect {
+    transition: opacity 0.2s ease-out;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: inherit;
+  }
+
+  .chainOption {
+    z-index: 3;
+    position: absolute;
+    cursor: pointer;
+    top: calc(5vh + 2px);
+    user-select: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 350px;
+    height: 40px;
+
+    background-color: rgba(var(--foreground-rgb), 0.05);
+    border-radius: 6px;
+    text-align: center;
+
+    &:focus {
+      outline: 0;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import styles from "@/components/ExchangeChains/ExchangeChains.module.scss";
+import styles from "./ExchangeChains.module.scss";
 import { IChain } from "@/types";
 import Image from "next/image";
 
