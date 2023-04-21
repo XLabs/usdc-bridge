@@ -1,7 +1,8 @@
 import styles from "./Chain.module.scss";
 import ChevronDown from "@/components/atoms/ChevronDownIcon.tsx";
 import { IChain } from "@/types";
-import Image from "@/components/atoms/Image";
+import getPublic from "@/utils/getPublic";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
 type Props = {
@@ -61,7 +62,7 @@ const Chain = ({ source, setSource, initial }: Props) => {
         onClick={handleSelect}
       >
         <Image
-          src={imgSrc}
+          src={getPublic(imgSrc)}
           width={24}
           height={24}
           alt={`${txt} icon`}
@@ -83,7 +84,7 @@ const Chain = ({ source, setSource, initial }: Props) => {
         >
           <Image
             alt={`${optionTxt} icon`}
-            src={optionImgSrc}
+            src={getPublic(optionImgSrc)}
             width={24}
             height={24}
           />

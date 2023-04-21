@@ -1,6 +1,7 @@
 import { ChangeEvent, useRef } from "react";
 import styles from "./USDCInput.module.scss";
-import Image from "@/components/atoms/Image";
+import Image from "next/image";
+import getPublic from "@/utils/getPublic";
 
 type Props = {
   value: string;
@@ -43,7 +44,12 @@ const USDCInput = ({ value, setValue }: Props) => {
         onClick={() => value === "0" && amountInputRef.current?.select()}
       />
       <div className={styles.usdcText}>
-        <Image alt="USDC icon" width={26} height={26} src="/usdc.png" />
+        <Image
+          alt="USDC icon"
+          width={26}
+          height={26}
+          src={getPublic("/usdc.png")}
+        />
         <span>USDC</span>
       </div>
     </div>

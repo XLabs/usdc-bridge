@@ -7,9 +7,10 @@ import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
 import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
-import Image from "@/components/atoms/Image";
+import Image from "next/image";
 import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
+import getPublic from "@/utils/getPublic";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -72,12 +73,17 @@ export default function Home() {
         <title>USDC Bridge</title>
         <meta name="description" content="USDC bridge developed by xLabs" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href={getPublic("/favicon.ico")} />
       </Head>
 
       <main className={`${styles.main} ${manrope.className}`}>
         <header className={styles.header}>
-          <Image alt="stable logo" width={120} height={30} src="/stable.png" />
+          <Image
+            alt="stable logo"
+            width={120}
+            height={30}
+            src={getPublic("/stable.png")}
+          />
           <button onClick={() => !isConnected && handleWallet()}>
             {walletTxt}
           </button>
@@ -85,7 +91,12 @@ export default function Home() {
 
         <div className={styles.center}>
           <h2 className={styles.title}>
-            <Image alt="USDC icon" width={42} height={42} src="/usdc.png" />
+            <Image
+              alt="USDC icon"
+              width={42}
+              height={42}
+              src={getPublic("/usdc.png")}
+            />
             <span>USDC Bridge</span>
           </h2>
           <h3 className={styles.subtitle}>
@@ -131,7 +142,7 @@ export default function Home() {
             <span>Powered by </span>
             <Image
               alt="Powered by Circle"
-              src="/circle.png"
+              src={getPublic("/circle.png")}
               width={120}
               height={30}
             />
