@@ -1,6 +1,6 @@
 import Head from "next/head";
 import Image from "next/image";
-import { Inter, Manrope } from "next/font/google";
+import { Manrope } from "next/font/google";
 import styles from "./app.module.scss";
 import { useEffect, useState } from "react";
 import { IChain } from "@/types";
@@ -11,7 +11,7 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 
-const inter = Manrope({ subsets: ["latin"] });
+const manrope = Manrope({ subsets: ["latin"] });
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
@@ -75,7 +75,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={`${styles.main} ${inter.className}`}>
+      <main className={`${styles.main} ${manrope.className}`}>
         <header className={styles.header}>
           <Image alt="stable logo" width={120} height={30} src="/stable.png" />
           <button onClick={() => !isConnected && handleWallet()}>
