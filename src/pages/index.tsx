@@ -37,13 +37,26 @@ export default function Home() {
 
   const [connectWalletTxt, setConnectWalletTxt] = useState("...");
   const [walletTxt, setWalletTxt] = useState<any>("...");
-  const [amount, setAmount] = useState("0");
+  const [balance, setBalance] = useState("");
   const [destinationGas, setDestinationGas] = useState(0);
+  const [amount, setAmount] = useState("0");
+
+  const changeAmount = (newAmount: string) => {
+    if (balance && Number(newAmount) > Number(balance)) {
+      return;
+    }
+    setAmount(newAmount);
+  };
 
   useEffect(() => {
     console.log("address", address);
     console.log("isConnected", isConnected);
     console.log("data", data);
+    if (data?.formatted) {
+      setBalance(data.formatted);
+    } else {
+      setBalance("");
+    }
 
     setConnectWalletTxt(isConnected ? "Disconnect" : "Connect");
     setWalletTxt(
@@ -96,12 +109,23 @@ export default function Home() {
             </div>
 
             <div className={styles.boxText}>Amount</div>
-            <USDCInput value={amount} setValue={setAmount} />
+            <USDCInput value={amount} setValue={changeAmount} />
+            {balance && (
+              <div className={styles.balance}>
+                <span className={styles.balanceTxt}>Balance {balance}</span>
+                <span
+                  onClick={() => changeAmount(balance)}
+                  className={styles.maxTxt}
+                >
+                  MAX
+                </span>
+              </div>
+            )}
 
             <DestinationGas onChange={setDestinationGas} />
-          </div>
 
-          {/* <button onClick={handleWallet}>{connectWalletTxt} Wallet</button> */}
+            <button onClick={handleWallet}>{connectWalletTxt} Wallet</button>
+          </div>
 
           <div className={styles.poweredBy}>
             <span>Powered by </span>

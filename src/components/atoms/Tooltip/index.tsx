@@ -8,12 +8,27 @@ type Props = {
 
 const Tooltip = ({ text, children }: Props) => {
   const [visible, setVisible] = useState(false);
-  const showTooltip = () => setVisible(true);
-  const hideTooltip = () => setVisible(false);
+  const [opacity, setOpacity] = useState(0);
+
+  const showTooltip = () => {
+    setVisible(true);
+    setTimeout(() => {
+      setOpacity(1);
+    }, 50);
+  };
+  const hideTooltip = () => {
+    setOpacity(0);
+    setTimeout(() => {
+      setVisible(false);
+    }, 350);
+  };
 
   return (
     <div className={styles.tooltipWrapper}>
-      <div style={{ opacity: visible ? 1 : 0 }} className={styles.tooltip}>
+      <div
+        style={{ opacity, display: visible ? "block" : "none" }}
+        className={styles.tooltip}
+      >
         {text}
       </div>
       <div onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>

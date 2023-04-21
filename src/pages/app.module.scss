@@ -144,6 +144,19 @@
         font-weight: 500;
       }
 
+      .balance {
+        margin-bottom: -2vh;
+
+        .balanceTxt {
+          color: rgba(var(--foreground-rgb), 0.85);
+        }
+        .maxTxt {
+          font-weight: 600;
+          margin-left: 8px;
+          cursor: pointer;
+        }
+      }
+
       button {
         // width: 100%;
         border: 0px;
@@ -152,10 +165,10 @@
         margin-top: 3vh;
         font-size: 16px;
         cursor: pointer;
-        background-color: rgba(var(--card-rgb), 0.05);
+        background-color: rgba(var(--card-rgb), 0.1);
 
         &:hover {
-          background-color: rgba(var(--card-rgb), 0.1);
+          background-color: rgba(var(--card-rgb), 0.2);
         }
       }
     }

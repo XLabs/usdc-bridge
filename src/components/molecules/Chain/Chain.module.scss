@@ -35,6 +35,11 @@
     justify-content: center;
     align-items: center;
     height: inherit;
+
+    font-size: 14px;
+    @include tablet {
+      font-size: 20px;
+    }
   }
 
   .chainOption {
