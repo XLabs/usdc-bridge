@@ -1,16 +1,17 @@
 import Head from "next/head";
 import Image from "next/image";
-import { Inter } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import styles from "./app.module.scss";
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { IChain } from "@/types";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
 import { useAccount, useBalance, useConnect, useDisconnect } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
+import USDCInput from "@/components/atoms/USDCInput";
+import DestinationGas from "@/components/molecules/DestinationGas";
 
-const inter = Inter({ subsets: ["latin"] });
-const TRANSACTION_LIMIT = 99999999;
+const inter = Manrope({ subsets: ["latin"] });
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
@@ -37,6 +38,7 @@ export default function Home() {
   const [connectWalletTxt, setConnectWalletTxt] = useState("...");
   const [walletTxt, setWalletTxt] = useState<any>("...");
   const [amount, setAmount] = useState("0");
+  const [destinationGas, setDestinationGas] = useState(0);
 
   useEffect(() => {
     console.log("address", address);
@@ -50,30 +52,6 @@ export default function Home() {
         : "Connect Wallet"
     );
   }, [address, isConnected, data]);
-
-  const handleAmountChange = (ev: ChangeEvent<HTMLInputElement>) => {
-    // valid number regex
-    if (/^\d+(\.\d*)?$/.exec(ev.target.value)) {
-      let newValue = ev.target.value;
-      let [integers, decimals] = newValue.split(".");
-
-      // no more than TRANSACTION_LIMIT
-      if (Number(integers) > TRANSACTION_LIMIT) {
-        newValue = integers.slice(0, `${TRANSACTION_LIMIT}`.length);
-      }
-
-      // no more than 5 decimals
-      if (decimals && decimals.length > 5) {
-        newValue = `${integers}.${decimals.slice(0, 5)}`;
-      }
-
-      setAmount(newValue);
-    } else if (ev.target.value === "") {
-      setAmount("0");
-    }
-  };
-
-  const amountInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <>
@@ -118,20 +96,9 @@ export default function Home() {
             </div>
 
             <div className={styles.boxText}>Amount</div>
-            <div className={styles.usdcInputContainer}>
-              <input
-                value={amount}
-                onChange={handleAmountChange}
-                ref={amountInputRef}
-                onClick={() =>
-                  amount === "0" && amountInputRef.current?.select()
-                }
-              />
-              <div className={styles.usdcText}>
-                <Image alt="USDC icon" width={26} height={26} src="/usdc.png" />
-                <span>USDC</span>
-              </div>
-            </div>
+            <USDCInput value={amount} setValue={setAmount} />
+
+            <DestinationGas onChange={setDestinationGas} />
           </div>
 
           {/* <button onClick={handleWallet}>{connectWalletTxt} Wallet</button> */}

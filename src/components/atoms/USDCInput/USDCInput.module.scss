@@ -1,0 +1,36 @@
+@import "@/styles/rules.scss";
+
+.usdcInputContainer {
+  width: 100%;
+  background-color: rgba(var(--card-rgb), 0.1);
+  border-radius: 6px;
+  height: 42px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  input {
+    background-color: transparent;
+    width: 80%;
+    margin-left: 16px;
+
+    font-size: 18px;
+    font-weight: 500;
+
+    border: 0px;
+    &:focus {
+      outline: 0px;
+    }
+  }
+
+  .usdcText {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-right: 16px;
+    gap: 8px;
+
+    font-size: 16px;
+    font-weight: 500;
+  }
+}

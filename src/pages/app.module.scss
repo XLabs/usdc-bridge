@@ -61,8 +61,7 @@
     justify-content: center;
     align-items: center;
     position: relative;
-    padding-top: 3rem;
-    padding-bottom: 1rem;
+    padding-bottom: 1vh;
 
     &::before {
       background: var(--secondary-glow);
@@ -120,15 +119,17 @@
       box-shadow: inset 0px 0px 4px 1px rgba(var(--foreground-rgb), 0.2);
 
       border-radius: 8px;
-      padding: 1rem;
 
       height: 75vh;
+      padding: 1rem;
       width: 85vw;
       @include tablet {
         width: 720px;
+        padding: 1.5rem;
       }
       @include bigDesktop {
         width: 920px;
+        padding: 2rem;
       }
 
       .fromToContainer {
@@ -163,41 +164,6 @@
       font-size: 18px;
       font-weight: 500;
       margin-bottom: 0.5vh;
-    }
-
-    .usdcInputContainer {
-      width: 100%;
-      background-color: rgba(var(--card-rgb), 0.1);
-      border-radius: 6px;
-      height: 42px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-
-      input {
-        background-color: transparent;
-        width: 80%;
-        margin-left: 16px;
-
-        font-size: 18px;
-        font-weight: 500;
-
-        border: 0px;
-        &:focus {
-          outline: 0px;
-        }
-      }
-
-      .usdcText {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-right: 16px;
-        gap: 8px;
-
-        font-size: 16px;
-        font-weight: 500;
-      }
     }
 
     .poweredBy {
