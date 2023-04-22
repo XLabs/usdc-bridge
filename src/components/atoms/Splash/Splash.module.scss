@@ -1,0 +1,44 @@
+.splash {
+  height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  user-select: none;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: black;
+  padding-top: 100px;
+
+  transition: opacity 0.4s ease-out;
+
+  &::after {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    content: "";
+    background: radial-gradient(rgba(1, 65, 255, 0.4), rgba(1, 65, 255, 0));
+    z-index: -1;
+  }
+
+  .usdc {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: white;
+    font-size: 24px;
+  }
+
+  .loader {
+    margin-top: 48px;
+  }
+}

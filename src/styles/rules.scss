@@ -20,8 +20,13 @@ $bigDesktopBreakpoint: 1440px;
   }
 }
 
-@mixin dark {
+@mixin dark() {
   @media (prefers-color-scheme: dark) {
+    @at-root #{selector-nest(':root:not([data-theme=light]):not([data-theme=dark])', &)} {
+      @content;
+    }
+  }
+  @at-root #{selector-nest(':root[data-theme=dark]', &)} {
     @content;
   }
 }

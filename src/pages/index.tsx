@@ -12,6 +12,8 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import getPublic from "@/utils/getPublic";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
+import DarkModeSwitch from "@/components/atoms/DarkModeSwitch";
+// import Splash from "@/components/atoms/Splash";
 
 // import { constants, Contract, ethers } from "ethers";
 // import {
@@ -94,6 +96,8 @@ export default function Home() {
       </Head>
 
       <main className={`${styles.main} ${manrope.className}`}>
+        {/* <Splash /> */}
+
         <header className={styles.header}>
           <Image
             alt="stable logo"
@@ -101,9 +105,12 @@ export default function Home() {
             height={30}
             src={getPublic("/stable.png")}
           />
-          <button onClick={() => !isConnected && handleWallet()}>
-            {walletTxt}
-          </button>
+          <div className={styles.headerInteractions}>
+            <DarkModeSwitch />
+            <button onClick={() => !isConnected && handleWallet()}>
+              {walletTxt}
+            </button>
+          </div>
         </header>
 
         <div className={styles.center}>

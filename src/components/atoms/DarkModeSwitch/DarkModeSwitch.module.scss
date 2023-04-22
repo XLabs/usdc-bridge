@@ -1,0 +1,21 @@
+.darkModeContainer {
+  width: 50px;
+  height: 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  user-select: none;
+
+  .darkModeSwitch {
+    width: 29px;
+    height: 29px;
+    transform: translateX(-2px) translateY(-2px);
+    border-radius: 50%;
+    box-shadow: 2px 0px 2px 1px rgba(var(--foreground-rgb), 0.2);
+
+    transition: margin-left 0.15s ease-out;
+
+    span {
+      margin-left: 4px;
+    }
+  }
+}
