@@ -10,6 +10,7 @@
     "deploy": "DEPLOY=deploy npm run build && touch out/.nojekyll && npx push-dir --dir=out --branch=gh-pages --cleanup --verbose"
   },
   "dependencies": {
+    "@certusone/wormhole-sdk": "^0.9.14",
     "@types/node": "18.15.12",
     "@types/react": "18.0.37",
     "@types/react-dom": "18.0.11",

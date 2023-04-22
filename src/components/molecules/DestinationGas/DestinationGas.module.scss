@@ -1,3 +1,5 @@
+@import "@/styles/rules.scss";
+
 .gasContainer {
   display: flex;
   align-items: center;
@@ -11,7 +13,7 @@
     border-radius: 50%;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid black;
+    border: 1px solid rgb(var(--foreground-rgb));
 
     cursor: pointer;
     user-select: none;
@@ -30,6 +32,33 @@
       border-radius: 50%;
       background-color: rgba(var(--foreground-rgb), 1);
       cursor: pointer;
+    }
+  }
+}
+
+.gasDetails {
+  margin-left: 45%;
+  width: 50%;
+  margin-top: 2vh;
+  transition: opacity 0.15s ease-out;
+
+  @include tablet {
+    margin-left: 60%;
+    width: 40%;
+    margin-top: 1.5vh;
+  }
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .gasAmount {
+    font-size: 18px;
+    font-weight: 300;
+
+    .gasCoin {
+      display: inline-block;
+      width: 60px;
     }
   }
 }

@@ -1,0 +1,11 @@
+.transactionDetail {
+  display: flex;
+  flex-direction: column;
+
+  .infoLine {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 0.5vh 0px;
+  }
+}

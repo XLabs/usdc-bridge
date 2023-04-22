@@ -11,6 +11,23 @@ import Image from "next/image";
 import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import getPublic from "@/utils/getPublic";
+import TransactionDetail from "@/components/atoms/TransactionDetail";
+
+// import { constants, Contract, ethers } from "ethers";
+// import {
+//   ChainId,
+//   CHAIN_ID_AVAX,
+//   CHAIN_ID_ETH,
+//   getEmitterAddressEth,
+//   getSignedVAAWithRetry,
+//   isEVMChain,
+//   parseSequenceFromLogEth,
+//   parseVaa,
+//   uint8ArrayToHex,
+// } from "@certusone/wormhole-sdk";
+
+const USDC_ETH_MAINNET_TOKEN = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+const USDC_ETH_TESTNET_TOKEN = "0x07865c6E87B9F70255377e024ace6630C1Eaa37F";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -25,7 +42,7 @@ export default function Home() {
 
   const { data } = useBalance({
     address: address,
-    token: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F", // USDC Token
+    token: USDC_ETH_TESTNET_TOKEN,
   });
 
   const handleWallet = () => {
@@ -133,7 +150,11 @@ export default function Home() {
               </div>
             )}
 
-            <DestinationGas onChange={setDestinationGas} />
+            <DestinationGas gas={destinationGas} onChange={setDestinationGas} />
+
+            <div className={styles.separator} />
+
+            <TransactionDetail />
 
             <button onClick={handleWallet}>{connectWalletTxt} Wallet</button>
           </div>

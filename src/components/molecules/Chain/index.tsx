@@ -87,6 +87,7 @@ const Chain = ({ source, setSource, initial }: Props) => {
             src={getPublic(optionImgSrc)}
             width={24}
             height={24}
+            className={styles.chainImg}
           />
           <span>{optionTxt}</span>
         </div>
