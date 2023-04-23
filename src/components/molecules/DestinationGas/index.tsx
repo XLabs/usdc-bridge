@@ -1,13 +1,15 @@
 import Tooltip from "@/components/atoms/Tooltip";
 import styles from "./DestinationGas.module.scss";
 import ReactSlider from "react-slider";
+import Loader from "@/components/atoms/Loader";
 
 type Props = {
   gas: number;
   onChange: (percent: number) => void;
+  maxDestinationGas: bigint | null;
 };
 
-const DestinationGas = ({ gas, onChange }: Props) => {
+const DestinationGas = ({ gas, onChange, maxDestinationGas }: Props) => {
   return (
     <>
       <div className={styles.gasContainer}>
@@ -18,16 +20,22 @@ const DestinationGas = ({ gas, onChange }: Props) => {
           </Tooltip>
         </div>
 
-        <ReactSlider
-          className={styles.gasSlider}
-          thumbClassName={styles.gasSelector}
-          onChange={(percentage) => onChange(percentage)}
-        />
+        {maxDestinationGas ? (
+          <ReactSlider
+            className={styles.gasSlider}
+            thumbClassName={styles.gasSelector}
+            onChange={(percentage) => onChange(percentage)}
+          />
+        ) : (
+          <div className={styles.sliderLoading}>
+            <Loader />
+          </div>
+        )}
       </div>
       <div className={styles.gasDetails} style={{ opacity: gas ? 1 : 0 }}>
         <div className={styles.gasAmount}>
           <span className={styles.gasCoin}>USDC</span>
-          <span>1.45</span>
+          <span>{gas}</span>
         </div>
         <div className={styles.gasAmount}>
           <span className={styles.gasCoin}>AVAX</span>

@@ -6,11 +6,12 @@ import getPublic from "@/utils/getPublic";
 type Props = {
   value: string;
   setValue: (val: string) => void;
+  maxDecimals: number;
 };
 
 const TRANSACTION_LIMIT = 99999999;
 
-const USDCInput = ({ value, setValue }: Props) => {
+const USDCInput = ({ value, setValue, maxDecimals }: Props) => {
   const handleAmountChange = (ev: ChangeEvent<HTMLInputElement>) => {
     // valid number regex
     if (/^\d+(\.\d*)?$/.exec(ev.target.value)) {
@@ -22,9 +23,9 @@ const USDCInput = ({ value, setValue }: Props) => {
         newValue = integers.slice(0, `${TRANSACTION_LIMIT}`.length);
       }
 
-      // no more than 5 decimals
-      if (decimals && decimals.length > 5) {
-        newValue = `${integers}.${decimals.slice(0, 5)}`;
+      // no more than "maxDecimals" decimals
+      if (decimals && decimals.length > maxDecimals) {
+        newValue = `${integers}.${decimals.slice(0, maxDecimals)}`;
       }
 
       setValue(newValue);

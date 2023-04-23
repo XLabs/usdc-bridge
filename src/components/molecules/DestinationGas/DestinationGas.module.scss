@@ -34,6 +34,15 @@
       cursor: pointer;
     }
   }
+
+  .sliderLoading {
+    width: 40%;
+    height: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .gasDetails {
