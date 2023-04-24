@@ -84,28 +84,32 @@ export default function Home() {
     }
   };
 
-  const [connectWalletTxt, setConnectWalletTxt] = useState("...");
-  const [walletTxt, setWalletTxt] = useState<any>("...");
+  const [boxWalletTxt, setBoxWalletTxt] = useState("...");
+  const [headerWalletTxt, setHeaderWalletTxt] = useState<any>("...");
   const [balance, setBalance] = useState("");
 
   useEffect(() => {
-    console.log("address", address);
-    console.log("isConnected", isConnected);
-    console.log("data", data);
-
     if (data?.formatted) {
       setBalance(data.formatted);
     } else {
       setBalance("");
     }
 
-    setConnectWalletTxt(isConnected ? "Disconnect" : "Connect");
-    setWalletTxt(
+    setBoxWalletTxt(isConnected ? "Approve" : "Connect Wallet");
+    setHeaderWalletTxt(
       isConnected
         ? `${address?.slice(0, 6)}...${address?.slice(-6)}`
         : "Connect Wallet"
     );
   }, [address, isConnected, data]);
+
+  useEffect(() => {
+    if (balance && +balance < +amount) {
+      console.log("TEST TEST balance", balance);
+      console.log("TEST TEST amount", amount);
+      changeAmount(balance);
+    }
+  }, [balance]); // eslint-disable-line
 
   // ----
   // AMOUNTS HANDLING ---
@@ -313,16 +317,19 @@ export default function Home() {
         {/* <Splash /> */}
 
         <header className={styles.header}>
-          <Image
-            alt="stable logo"
-            width={120}
-            height={30}
-            src={getPublic("/stable.png")}
-          />
+          <div className={styles.logo}>
+            <Image
+              alt="stable logo"
+              width={120}
+              height={30}
+              src={getPublic("/stable.png")}
+            />
+            <a href="https://stable.io/usdc-bridge">USDC</a>
+          </div>
           <div className={styles.headerInteractions}>
             <DarkModeSwitch />
             <button onClick={() => !isConnected && handleWallet()}>
-              {walletTxt}
+              {headerWalletTxt}
             </button>
           </div>
         </header>
@@ -395,7 +402,7 @@ export default function Home() {
               destination={destination}
             />
 
-            <button onClick={handleWallet}>{connectWalletTxt} Wallet</button>
+            <button onClick={handleWallet}>{boxWalletTxt}</button>
           </div>
 
           <a

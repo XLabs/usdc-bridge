@@ -3,7 +3,8 @@
 .chainContainer {
   width: 100%;
   height: 5vh;
-  background-color: rgba(var(--foreground-rgb), 0.05);
+  background-color: rgb(var(--background-end-rgb));
+  box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.25);
   border-radius: 4px;
 
   display: flex;
@@ -49,6 +50,8 @@
     top: calc(5vh + 2px);
     user-select: none;
 
+    box-shadow: 1px 2px 3px 1px rgba(0, 0, 0, 0.25);
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -57,14 +60,21 @@
     width: 100%;
     font-size: 14px;
 
-    @include tablet {
-      font-size: 20px;
-      width: 350px;
-    }
-
-    background-color: rgba(var(--foreground-rgb), 0.05);
     border-radius: 6px;
     text-align: center;
+
+    padding-right: 12px;
+    background-color: rgba(var(--background-end-rgb));
+
+    &:hover {
+      background-color: rgba(var(--background-start-rgb));
+    }
+
+    @include tablet {
+      font-size: 20px;
+      width: 200px;
+      padding-right: 6px;
+    }
 
     &:focus {
       outline: 0;
