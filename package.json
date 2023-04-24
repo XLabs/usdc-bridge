@@ -22,6 +22,7 @@
     "react-dom": "18.2.0",
     "react-slider": "^2.0.4",
     "typescript": "5.0.4",
+    "use-debounce": "^9.0.4",
     "wagmi": "^0.12.12"
   },
   "devDependencies": {
