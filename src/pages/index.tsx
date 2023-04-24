@@ -2,7 +2,15 @@ import Head from "next/head";
 import { Manrope } from "next/font/google";
 import styles from "./app.module.scss";
 import { useEffect, useState } from "react";
-import { IChain } from "@/types";
+import {
+  IChain,
+  USDC_ADDRESSES_TESTNET,
+  AMOUNT_DECIMALS,
+  RPCS,
+  USDC_ADDRESSES_MAINNET,
+  USDC_DECIMALS,
+  getEvmChainId,
+} from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
 import {
@@ -12,6 +20,7 @@ import {
   useDisconnect,
   useSwitchNetwork,
 } from "wagmi";
+import { avalanche, avalancheFuji, goerli, mainnet } from "wagmi/chains";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
@@ -36,78 +45,73 @@ import {
 } from "@certusone/wormhole-sdk";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 
-const USDC_ADDRESSES_TESTNET: { [key in ChainId]?: `0x${string}` } = {
-  [CHAIN_ID_ETH]: "0x07865c6E87B9F70255377e024ace6630C1Eaa37F",
-  [CHAIN_ID_AVAX]: "0x5425890298aed601595a70AB815c96711a31Bc65",
-};
-
-const USDC_ADDRESSES_MAINNET: { [key in ChainId]?: `0x${string}` } = {
-  [CHAIN_ID_ETH]: "0xTODO", // TODO
-  [CHAIN_ID_AVAX]: "0xTODO", // TODO
-};
-
-const AMOUNT_DECIMALS = 5;
-const USDC_DECIMALS = 6;
-
-const ETH_NETWORK_CHAIN_ID_TESTNET = 5; // https://chainlist.org/chain/5?testnets=true
-const AVAX_NETWORK_CHAIN_ID_TESTNET = 43113; // https://chainlist.org/chain/43113?testnets=true
-const RPCS = {
-  [ETH_NETWORK_CHAIN_ID_TESTNET]: "https://rpc.ankr.com/eth_goerli",
-  [AVAX_NETWORK_CHAIN_ID_TESTNET]: "https://api.avax-test.network/ext/bc/C/rpc",
-};
-const getEvmChainId = (chainId: ChainId) =>
-  chainId === CHAIN_ID_ETH
-    ? ETH_NETWORK_CHAIN_ID_TESTNET
-    : chainId === CHAIN_ID_AVAX
-    ? AVAX_NETWORK_CHAIN_ID_TESTNET
-    : undefined;
-
 const manrope = Manrope({ subsets: ["latin"] });
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
-  const oppositeSource = source === "AVAX" ? "ETH" : "AVAX";
-  const changeSource = () => setSource(oppositeSource);
+  const destination = source === "AVAX" ? "ETH" : "AVAX";
+  const changeSource = () => setSource(destination);
 
   const sourceChainId = source === "AVAX" ? CHAIN_ID_AVAX : CHAIN_ID_ETH;
   const destinationChainId = source === "AVAX" ? CHAIN_ID_ETH : CHAIN_ID_AVAX;
 
+  // ----
+  // WALLET HANDLING ---
   const { address, isConnected } = useAccount();
-  const { connect } = useConnect({ connector: new InjectedConnector() });
+  const { connect } = useConnect({
+    connector: new InjectedConnector({
+      chains: [avalancheFuji, goerli],
+    }),
+  });
   const { disconnect } = useDisconnect();
 
-  const { switchNetwork, chains } = useSwitchNetwork();
-
   useEffect(() => {
-    console.log("source", source);
-    console.log("sourceChainId", sourceChainId);
-    console.log("chains???", chains);
     changeAmount("0");
     setDestinationGas(0);
-
-    // switchNetwork?.(sourceChainId);
   }, [source]); // eslint-disable-line
 
   const { data } = useBalance({
+    chainId: getEvmChainId(sourceChainId),
     address: address,
-    token: USDC_ADDRESSES_TESTNET[CHAIN_ID_ETH],
+    token: USDC_ADDRESSES_TESTNET[sourceChainId],
   });
 
   const handleWallet = () => {
     if (isConnected) {
       disconnect();
     } else {
-      connect();
+      connect({ chainId: getEvmChainId(sourceChainId) });
     }
   };
 
   const [connectWalletTxt, setConnectWalletTxt] = useState("...");
   const [walletTxt, setWalletTxt] = useState<any>("...");
   const [balance, setBalance] = useState("");
+
+  useEffect(() => {
+    console.log("address", address);
+    console.log("isConnected", isConnected);
+    console.log("data", data);
+
+    if (data?.formatted) {
+      setBalance(data.formatted);
+    } else {
+      setBalance("");
+    }
+
+    setConnectWalletTxt(isConnected ? "Disconnect" : "Connect");
+    setWalletTxt(
+      isConnected
+        ? `${address?.slice(0, 6)}...${address?.slice(-6)}`
+        : "Connect Wallet"
+    );
+  }, [address, isConnected, data]);
+
+  // ----
+  // AMOUNTS HANDLING ---
   const [destinationGas, setDestinationGas] = useState(0);
   const [amount, setAmount] = useState("0");
 
-  // from USDC to AVAX/ETH.
   const [toNativeAmount, setToNativeAmount] = useState<bigint>(BigInt(0));
   const [debouncedToNativeAmount] = useDebounce(toNativeAmount, 500);
 
@@ -119,25 +123,24 @@ export default function Home() {
     if (maxDestinationGas) {
       const maxGas = Number(formatUnits(maxDestinationGas, USDC_DECIMALS));
       const currentGas = ((maxGas * percentage) / 100).toFixed(AMOUNT_DECIMALS);
-      setDestinationGas(+currentGas);
 
       if (+currentGas > +amount) {
         changeAmount(`${(+currentGas + 0.1).toFixed(2)}`);
+        // setDestinationGas(+currentGas);
+      } else {
+        setDestinationGas(+currentGas);
+        setToNativeAmount(parseUnits(currentGas, USDC_DECIMALS).toBigInt());
       }
-
-      // ?
-
-      // setToNativeAmount(BigInt(currentGas.replace(".", "")));
-      setToNativeAmount(parseUnits(currentGas, USDC_DECIMALS).toBigInt());
     }
   };
 
   const changeAmount = (a: string) => {
     let newAmount = a;
 
-    if (balance && Number(newAmount) > Number(balance)) {
+    if (balance && +newAmount > +balance) {
       return;
     }
+
     while (newAmount.startsWith("00")) {
       newAmount = newAmount.substring(1);
     }
@@ -156,25 +159,8 @@ export default function Home() {
     setAmount(newAmount);
   };
 
-  useEffect(() => {
-    console.log("address", address);
-    console.log("isConnected", isConnected);
-    console.log("data", data);
-    if (data?.formatted) {
-      setBalance(data.formatted);
-    } else {
-      setBalance("");
-    }
-
-    setConnectWalletTxt(isConnected ? "Disconnect" : "Connect");
-    setWalletTxt(
-      isConnected
-        ? `${address?.slice(0, 6)}...${address?.slice(-6)}`
-        : "Connect Wallet"
-    );
-  }, [address, isConnected, data]);
-
-  // --
+  // ----
+  // SMART CONTRACTS HANDLING ---
 
   const USDC_RELAYER_TESTNET: { [key in ChainId]?: string } = {
     [CHAIN_ID_ETH]: "0xbd227cd0513889752a792c98dab42dc4d952a33b",
@@ -183,12 +169,8 @@ export default function Home() {
   const sourceRelayContract = USDC_RELAYER_TESTNET[sourceChainId];
   const destinationRelayContract = USDC_RELAYER_TESTNET[destinationChainId];
 
-  // ---
-
   const sourceAsset = USDC_ADDRESSES_TESTNET[sourceChainId];
   const destinationAsset = USDC_ADDRESSES_TESTNET[destinationChainId];
-
-  // ---
 
   const [maxDestinationGas, setMaxDestinationGas] = useState<bigint | null>(
     null
@@ -222,9 +204,6 @@ export default function Home() {
       );
       const maxSwap = await contract.calculateMaxSwapAmountIn(destinationAsset);
       if (cancelled) return;
-
-      console.log("maxSwap", maxSwap);
-      console.log("maxSwap.toBigInt()", maxSwap.toBigInt());
 
       setMaxDestinationGas(maxSwap.toBigInt());
     })();
@@ -276,6 +255,8 @@ export default function Home() {
     debouncedToNativeAmount,
   ]);
 
+  // ----
+  // PRE-PROCESSED VARIABLES ---
   const stringifiedEstimatedGas = estimatedGas
     ? Number(formatUnits(estimatedGas, 18)).toFixed(6)
     : "";
@@ -283,10 +264,49 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>USDC Bridge</title>
-        <meta name="description" content="USDC bridge developed by xLabs" />
+        <title>USDC Bridge | Cross-Chain USDC Transfer</title>
+        <meta
+          name="description"
+          content="Bridge USDC natively between blockchains for free. Send or transfer USDC between Ethereum and Avalanche powered by Circle’s Cross-Chain Transfer Protocol."
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          property="og:title"
+          content="Stable: Cross-Chain USDC Transfers"
+        />
+        <meta
+          property="og:description"
+          content="Bridge or transfer native USDC between Ethereum and Avalanche powered by Circle's CCTP."
+        />
+        <meta
+          property="og:image"
+          content="https://stable.io/stable_banner.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href={getPublic("/apple-touch-icon.png")}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href={getPublic("/favicon-32x32.png")}
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href={getPublic("/favicon-16x16.png")}
+        />
+        <link rel="manifest" href={getPublic("/site.webmanifest")} />
+        <link
+          rel="mask-icon"
+          href={getPublic("/safari-pinned-tab.svg")}
+          color="#5bbad5"
+        />
         <link rel="icon" href={getPublic("/favicon.ico")} />
+        <meta name="theme-color" content="#ffffff" />
       </Head>
 
       <main className={`${styles.main} ${manrope.className}`}>
@@ -360,7 +380,7 @@ export default function Home() {
               amount={amount}
               gas={destinationGas}
               onChange={changeDestinationGas}
-              oppositeSource={oppositeSource}
+              destination={destination}
               maxDestinationGas={maxDestinationGas}
               estimatedGas={stringifiedEstimatedGas}
               sliderPercentage={sliderPercentage}
@@ -372,13 +392,17 @@ export default function Home() {
               amount={amount}
               estimatedGas={stringifiedEstimatedGas}
               destinationGas={destinationGas}
-              oppositeSource={oppositeSource}
+              destination={destination}
             />
 
             <button onClick={handleWallet}>{connectWalletTxt} Wallet</button>
           </div>
 
-          <div className={styles.poweredBy}>
+          <a
+            href="https://developers.circle.com/stablecoin/docs/cctp-faq"
+            className={styles.poweredBy}
+            target="_blank"
+          >
             <span>Powered by </span>
             <Image
               alt="Powered by Circle"
@@ -386,8 +410,25 @@ export default function Home() {
               width={120}
               height={30}
             />
-          </div>
+          </a>
         </div>
+        <footer>
+          <a
+            className={styles.tweet}
+            href="https://twitter.com/stable_io"
+            target="_blank"
+          >
+            <Image
+              alt="Twitter logo"
+              src={getPublic("/twitter.png")}
+              width={20}
+              height={20}
+            />
+          </a>
+          <a href="mailto:hello@stable.io" target="_blank">
+            Contact Us
+          </a>
+        </footer>
       </main>
     </>
   );

@@ -1,17 +1,17 @@
-import { IChain } from "@/types";
+import { IChain } from "@/constants";
 import styles from "./TransactionDetail.module.scss";
 
 type Props = {
   amount: string;
   estimatedGas: string;
-  oppositeSource: IChain;
+  destination: IChain;
   destinationGas: number;
 };
 
 const TransactionDetail = ({
   amount,
   estimatedGas,
-  oppositeSource,
+  destination,
   destinationGas,
 }: Props) => {
   const USDCamount = (+amount - +destinationGas).toFixed(5);
@@ -24,9 +24,7 @@ const TransactionDetail = ({
       </div>
       <div className={styles.infoLine}>
         <span>Est. Destination Gas</span>
-        <span>
-          {estimatedGas ? `≈${estimatedGas} ${oppositeSource}` : "..."}
-        </span>
+        <span>{estimatedGas ? `≈${estimatedGas} ${destination}` : "..."}</span>
       </div>
       <div className={styles.infoLine}>
         <span>Fee</span>

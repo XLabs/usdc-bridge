@@ -2,7 +2,7 @@ import Tooltip from "@/components/atoms/Tooltip";
 import styles from "./DestinationGas.module.scss";
 import ReactSlider from "react-slider";
 import Loader from "@/components/atoms/Loader";
-import { IChain } from "@/types";
+import { IChain } from "@/constants";
 
 type Props = {
   amount: string;
@@ -10,7 +10,7 @@ type Props = {
   onChange: (percent: number) => void;
   maxDestinationGas: bigint | null;
   estimatedGas: string;
-  oppositeSource: IChain;
+  destination: IChain;
   sliderPercentage: number;
 };
 
@@ -20,7 +20,7 @@ const DestinationGas = ({
   onChange,
   maxDestinationGas,
   estimatedGas,
-  oppositeSource,
+  destination,
   sliderPercentage,
 }: Props) => {
   return (
@@ -52,7 +52,7 @@ const DestinationGas = ({
           <span>{+amount < gas ? amount : gas}</span>
         </div>
         <div className={styles.gasAmount}>
-          <span className={styles.gasCoin}>{oppositeSource}</span>
+          <span className={styles.gasCoin}>{destination}</span>
           <span>{estimatedGas ? `≈ ${estimatedGas}` : "..."}</span>
         </div>
       </div>

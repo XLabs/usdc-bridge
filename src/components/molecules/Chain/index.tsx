@@ -1,6 +1,6 @@
 import styles from "./Chain.module.scss";
 import ChevronDown from "@/components/atoms/ChevronDownIcon.tsx";
-import { IChain } from "@/types";
+import { IChain } from "@/constants";
 import getPublic from "@/utils/getPublic";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
