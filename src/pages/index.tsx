@@ -76,11 +76,19 @@ export default function Home() {
     token: USDC_ADDRESSES_TESTNET[sourceChainId],
   });
 
-  const handleWallet = () => {
+  const handleHeaderWallet = () => {
     if (isConnected) {
       disconnect();
     } else {
       connect({ chainId: getEvmChainId(sourceChainId) });
+    }
+  };
+
+  const handleBoxWallet = () => {
+    if (!isConnected) {
+      connect({ chainId: getEvmChainId(sourceChainId) });
+    } else {
+      console.log("approve");
     }
   };
 
@@ -328,9 +336,7 @@ export default function Home() {
           </div>
           <div className={styles.headerInteractions}>
             <DarkModeSwitch />
-            <button onClick={() => !isConnected && handleWallet()}>
-              {headerWalletTxt}
-            </button>
+            <button onClick={handleHeaderWallet}>{headerWalletTxt}</button>
           </div>
         </header>
 
@@ -402,7 +408,7 @@ export default function Home() {
               destination={destination}
             />
 
-            <button onClick={handleWallet}>{boxWalletTxt}</button>
+            <button onClick={handleBoxWallet}>{boxWalletTxt}</button>
           </div>
 
           <a
