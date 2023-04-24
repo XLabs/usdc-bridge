@@ -105,11 +105,10 @@
       padding: 1rem;
       width: 85vw;
       @include tablet {
-        width: 720px;
+        width: 554px;
         padding: 1.5rem;
       }
       @include bigDesktop {
-        width: 920px;
         padding: 2rem;
       }
 
@@ -209,8 +208,17 @@
     height: 40px;
     gap: 16px;
 
-    position: fixed;
-    bottom: 0px;
+    background-color: rgb(var(--background-start-rgb));
+
+    z-index: 5;
+    position: relative;
+    margin-top: 24px;
+
+    @include tablet {
+      position: fixed;
+      bottom: 0px;
+      margin-top: 0;
+    }
 
     .tweet {
       transform: translateY(2px);
