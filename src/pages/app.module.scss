@@ -109,8 +109,7 @@
       flex-direction: column;
       z-index: 2;
 
-      background-color: rgba(var(--card-rgb), 0.1);
-      box-shadow: inset 0px 0px 4px 1px rgba(var(--foreground-rgb), 0.2);
+      box-shadow: inset 0px 0px 4px 1px rgba(var(--foreground-rgb), 0.3);
 
       border-radius: 8px;
 
@@ -168,6 +167,7 @@
         font-weight: 600;
         font-size: 16px;
         cursor: pointer;
+        box-shadow: 2px 2px 2px 0px rgba(var(--foreground-rgb), 0.3);
 
         color: white;
         background-color: #000027;
