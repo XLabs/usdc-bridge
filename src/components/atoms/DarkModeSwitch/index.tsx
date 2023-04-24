@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./DarkModeSwitch.module.scss";
+import Image from "next/image";
+import getPublic from "@/utils/getPublic";
 
 const DarkModeSwitch = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -42,7 +44,12 @@ const DarkModeSwitch = () => {
           backgroundColor: isDarkMode ? "white" : "#ff5",
         }}
       >
-        <span>{isDarkMode ? "🌛" : "☀️"}</span>
+        <Image
+          alt={isDarkMode ? "moon" : "sun"}
+          src={getPublic(isDarkMode ? "/moonEmoji.png" : "/sunEmoji.png")}
+          width={22}
+          height={22}
+        />
       </div>
     </div>
   );

@@ -13,9 +13,8 @@
     box-shadow: 2px 0px 2px 1px rgba(var(--foreground-rgb), 0.2);
 
     transition: margin-left 0.15s ease-out;
-
-    span {
-      margin-left: 4px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
