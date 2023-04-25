@@ -1,9 +1,9 @@
 import { USDC_DECIMALS } from "@/constants";
 import { approveEth, getAllowanceEth } from "@certusone/wormhole-sdk";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 import { useEffect, useMemo, useState } from "react";
-import { errorToast, successToast } from "./toast";
+import { errorToast, infoToast, successToast } from "./toast";
 
 export default function useAllowance(
   signer: ethers.Signer,
@@ -13,7 +13,7 @@ export default function useAllowance(
   overrideAddress: string
 ) {
   const [allowance, setAllowance] = useState<string | null>(null);
-  // const [isAllowanceFetching, setIsAllowanceFetching] = useState(false);
+  const [isFetchingAllowance, setIsFetchingAllowance] = useState(false);
   const [isProcessingApproval, setIsApproving] = useState<boolean>(false);
 
   const sufficientAllowance =
@@ -21,22 +21,24 @@ export default function useAllowance(
 
   useEffect(() => {
     let cancelled = false;
+
     if (tokenAddress && signer && overrideAddress && !isProcessingApproval) {
-      console.log("efecto turbio post finally");
-      // setIsAllowanceFetching(true);
+      setIsFetchingAllowance(true);
+
       getAllowanceEth(overrideAddress, tokenAddress, signer).then(
         (result) => {
-          // console.log("turbio result!");
+          console.log("get allowance ok");
           if (!cancelled) {
-            // setIsAllowanceFetching(false);
+            setIsFetchingAllowance(false);
+            console.log("result of allowance", result);
             setAllowance(formatUnits(result, USDC_DECIMALS));
           }
         },
         (error) => {
-          // console.log("turbio error", error);
+          console.log("get allowance denied", error);
           if (!cancelled) {
-            // setIsAllowanceFetching(false);
-            // todo: we can setError(error) here to tell something went wrong allowing eths.
+            setIsFetchingAllowance(false);
+            // we can setError(error) here to tell something went wrong allowing eths.
           }
         }
       );
@@ -47,16 +49,20 @@ export default function useAllowance(
     };
   }, [evmChainId, tokenAddress, isProcessingApproval, overrideAddress, signer]);
 
+  useEffect(() => {
+    console.log("allowance:", allowance);
+  }, [allowance]);
+
   const approveAmount: (amount: string) => void = useMemo(() => {
     return (amount: string) => {
       setIsApproving(true);
+      infoToast("Asking for approval...");
 
       const usdcWei = parseUnits(amount, USDC_DECIMALS);
 
       approveEth(overrideAddress!, tokenAddress!, signer, usdcWei, {})
         .then(
-          (fullfiled) => {
-            console.log("fullfiled?", fullfiled);
+          (_fullfiled) => {
             successToast(
               `You approved a spending limit of ${amount} successfully!`
             );
@@ -66,6 +72,12 @@ export default function useAllowance(
             errorToast("Error: user rejected the approval transaction");
           }
         )
+        .catch((err) => {
+          console.error(err);
+          errorToast(
+            "Something went wrong approving the transaction. Check the console for more info"
+          );
+        })
         .finally(() => {
           console.log("finally!!!");
           setIsApproving(false);
@@ -75,10 +87,16 @@ export default function useAllowance(
 
   return useMemo(
     () => ({
+      isFetchingAllowance,
+      isProcessingApproval,
+      sufficientAllowance,
+      approveAmount,
+    }),
+    [
+      isFetchingAllowance,
       sufficientAllowance,
       approveAmount,
       isProcessingApproval,
-    }),
-    [sufficientAllowance, approveAmount, isProcessingApproval]
+    ]
   );
 }

@@ -1,0 +1,38 @@
+.headerButtons {
+  position: relative;
+
+  button {
+    z-index: 2;
+    position: relative;
+
+    width: 200px;
+    max-width: 40vw;
+    height: max(4vh, 25px);
+    padding: 0px 16px;
+    margin-right: 8px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    border: 0px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    background-color: rgb(var(--foreground-rgb));
+    color: rgb(var(--background-end-rgb));
+    font-size: 16px;
+  }
+
+  .disconnectHeaderBtn {
+    z-index: 1;
+    position: absolute;
+    font-size: 14px;
+    left: 0;
+    top: 0;
+
+    transition: top 0.15s ease-out;
+
+    &:focus {
+      top: max(4.4vh, 30px);
+    }
+  }
+}

@@ -82,8 +82,3 @@ export const USDC_WH_EMITTER: { [key in ChainId]?: string } = {
     USDC_WH_INTEGRATION[CHAIN_ID_AVAX] || ""
   ),
 };
-
-// ???
-export const WORMHOLE_RPC_HOSTS = [
-  "https://wormhole-v2-testnet-api.certus.one",
-];

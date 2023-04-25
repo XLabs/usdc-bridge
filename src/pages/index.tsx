@@ -1,6 +1,6 @@
 import { Manrope } from "next/font/google";
 import styles from "./app.module.scss";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AMOUNT_DECIMALS,
   CIRCLE_BRIDGE_ADDRESSES,
@@ -14,7 +14,6 @@ import {
   USDC_DECIMALS,
   USDC_WH_EMITTER,
   WEBAPP_URL,
-  WORMHOLE_RPC_HOSTS,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
@@ -56,6 +55,7 @@ import useAllowance from "@/utils/useAllowance";
 import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
 import { handleCircleMessageInLogs } from "@/utils/circle";
+import HeaderButtons from "@/components/atoms/HeaderButtons";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -66,22 +66,48 @@ export default function Home() {
   const sourceChainId = source === "AVAX" ? CHAIN_ID_AVAX : CHAIN_ID_ETH;
   const destinationChainId = source === "AVAX" ? CHAIN_ID_ETH : CHAIN_ID_AVAX;
 
+  const [blockedInteractions, setBlockedInteraction] = useState(false);
+
   // WALLET HANDLING
-  const { switchNetwork } = useSwitchNetwork();
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
   const { connect } = useConnect({
     onError: (err) => {
       console.error(err);
-      errorToast("Error: Wallet not found (do you have Metamask installed?)");
+      errorToast(
+        <div>
+          <p>Error: Wallet not found</p>
+          <p>(Do you have a wallet installed?)</p>
+          <p>(Did you approve the connection?)</p>
+        </div>
+      );
     },
     connector: new InjectedConnector({
       chains: [avalancheFuji, goerli],
     }),
   });
   const { disconnect } = useDisconnect();
+  const { switchNetwork } = useSwitchNetwork({
+    onSuccess: () => {
+      setBlockedInteraction(false);
+    },
+    onError: () => {
+      errorToast(
+        <div>
+          <p>Error changing network.</p>
+          <p>(Did you rejected the network change?)</p>
+          <p>(Do you have any pending action on your wallet?)</p>
+          <p>Refresh the page to try again.</p>
+        </div>,
+        12000
+      );
+      setBlockedInteraction(true);
+    },
+  });
 
   const changeSource = () => {
+    if (isConnected) setBlockedInteraction(true);
+
     switchNetwork?.(getEvmChainId(destinationChainId));
     setSource(destination);
   };
@@ -91,19 +117,11 @@ export default function Home() {
     changeDestinationGas(0);
   }, [source]); // eslint-disable-line
 
-  const { data } = useBalance({
+  const { data, refetch } = useBalance({
     chainId: getEvmChainId(sourceChainId),
     address: address,
     token: USDC_ADDRESSES_TESTNET[sourceChainId],
   });
-
-  const handleHeaderWallet = () => {
-    if (isConnected) {
-      disconnect();
-    } else {
-      connect({ chainId: getEvmChainId(sourceChainId) });
-    }
-  };
 
   // main button function:
   const handleBoxWallet = () => {
@@ -204,14 +222,18 @@ export default function Home() {
   const [estimatedGas, setEstimatedGas] = useState<bigint | null>(null);
 
   // GET ALLOWANCE
-  const { approveAmount, sufficientAllowance, isProcessingApproval } =
-    useAllowance(
-      signer as Signer,
-      getEvmChainId(sourceChainId),
-      USDC_ADDRESSES_TESTNET[sourceChainId]!,
-      amount,
-      sourceRelayContract!
-    );
+  const {
+    isFetchingAllowance,
+    isProcessingApproval,
+    approveAmount,
+    sufficientAllowance,
+  } = useAllowance(
+    signer as Signer,
+    getEvmChainId(sourceChainId),
+    USDC_ADDRESSES_TESTNET[sourceChainId]!,
+    amount,
+    sourceRelayContract!
+  );
 
   // CHANGE BUTTON TEXTS WHEN CHANGING WALLETS
   useEffect(() => {
@@ -354,6 +376,7 @@ export default function Home() {
       signer
     );
 
+    setBlockedInteraction(true);
     setIsTransfering(true);
 
     try {
@@ -366,17 +389,19 @@ export default function Home() {
       );
 
       setSourceTxHash(tx.hash);
-      infoToast(`(1/X) Transaction hash: ${tx.hash}`);
+      infoToast(`(1/3) Transaction hash: ${tx.hash}`);
       console.log("tx hash:", tx.hash);
 
       const receipt = await tx.wait();
+
+      console.log("receipt here!", receipt);
 
       if (!receipt) {
         throw new Error("Invalid receipt");
       }
 
       setSourceTxConfirmed(true);
-      infoToast("(2/X) Source transaction confirmed");
+      infoToast("(2/3) Source transaction confirmed");
 
       // find circle message
       const [circleBridgeMessage, circleAttestation] =
@@ -386,38 +411,21 @@ export default function Home() {
         throw new Error(`Error parsing receipt for ${tx.hash}`);
       }
 
-      infoToast("(3/X) | Circle message found");
+      // infoToast("(3/X) | Circle message found");
 
-      // find wormhole message
-      const seq = parseSequenceFromLogEth(
-        receipt,
-        CONTRACTS["TESTNET"][toChainName(sourceChainId)].core || ""
-      );
-
-      const { vaaBytes } = await getSignedVAAWithRetry(
-        WORMHOLE_RPC_HOSTS,
-        sourceChainId,
-        sourceRelayEmitter,
-        seq
-      );
-
-      // TRANSACTION COMPLETE.
-      setTransferInfo({
-        VAA: `0x${uint8ArrayToHex(vaaBytes)}`,
-        circleBridgeMessage,
-        circleAttestation,
-      });
-
-      successToast("Your transfer was sent successfully!");
+      successToast("(3/3) Your transfer was sent successfully!");
+      await refetch();
     } catch (e) {
       console.error(e);
       errorToast(
         "Error: Something went wrong. Check the console for more info"
       );
     } finally {
+      setBlockedInteraction(false);
       setIsTransfering(false);
     }
   }, [
+    refetch,
     amount,
     signer,
     sourceContract,
@@ -433,7 +441,8 @@ export default function Home() {
     ? Number(formatUnits(estimatedGas, 18)).toFixed(6)
     : "";
 
-  const mainBtnLoading = isProcessingApproval || isTransfering;
+  const mainBtnLoading =
+    isProcessingApproval || isTransfering || isFetchingAllowance;
 
   return (
     <>
@@ -453,7 +462,13 @@ export default function Home() {
           </div>
           <div className={styles.headerInteractions}>
             <DarkModeSwitch />
-            <button onClick={handleHeaderWallet}>{headerWalletTxt}</button>
+            <HeaderButtons
+              isConnected={isConnected}
+              disconnect={disconnect}
+              connect={connect}
+              sourceChainId={sourceChainId}
+              headerWalletTxt={headerWalletTxt}
+            />
           </div>
         </header>
 
@@ -468,6 +483,7 @@ export default function Home() {
           </h3>
 
           <div className={styles.container}>
+            {blockedInteractions && <div className={styles.blocked} />}
             <div className={styles.fromToContainer}>
               <div className={styles.chain}>
                 <div className={styles.boxText}>From</div>
@@ -571,9 +587,10 @@ export default function Home() {
 
       <ToastContainer
         newestOnTop={false}
-        closeOnClick
+        closeOnClick={false}
         rtl={false}
         pauseOnFocusLoss={false}
+        toastStyle={{ cursor: "default", textAlign: "center" }}
         draggable={false}
         pauseOnHover
       />
