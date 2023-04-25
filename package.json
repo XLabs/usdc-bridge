@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "DEPLOY=deploy npm run build && touch out/.nojekyll && cp CNAME out/ && npx push-dir --dir=out --branch=gh-pages --cleanup --verbose"
+    "deployDev": "DEPLOY=deploy npm run build && touch out/.nojekyll && cp CNAME_DEV out/ && mv out/CNAME_DEV out/CNAME && npx push-dir --dir=out --branch=gh-pages --cleanup --verbose",
+    "deployProd": "DEPLOY=deploy npm run build && touch out/.nojekyll && cp CNAME_PROD out/ && mv out/CNAME_PROD out/CNAME && npx push-dir --dir=out --branch=gh-pages-prod --cleanup --verbose"
   },
   "dependencies": {
     "@certusone/wormhole-sdk": "^0.9.14",
