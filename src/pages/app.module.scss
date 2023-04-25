@@ -133,7 +133,7 @@
       .chain {
         display: flex;
         flex-direction: column;
-        width: 40vw;
+        width: calc(50% - 15px);
         font-weight: 500;
       }
 

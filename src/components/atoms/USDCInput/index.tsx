@@ -1,6 +1,7 @@
 import { ChangeEvent, useRef } from "react";
 import styles from "./USDCInput.module.scss";
 import Image from "next/image";
+import { Manrope } from "next/font/google";
 
 type Props = {
   value: string;
@@ -9,6 +10,7 @@ type Props = {
 };
 
 const TRANSACTION_LIMIT = 99999999;
+const manrope = Manrope({ subsets: ["latin"] });
 
 const USDCInput = ({ value, setValue, maxDecimals }: Props) => {
   const handleAmountChange = (ev: ChangeEvent<HTMLInputElement>) => {
@@ -38,6 +40,7 @@ const USDCInput = ({ value, setValue, maxDecimals }: Props) => {
   return (
     <div className={styles.usdcInputContainer}>
       <input
+        className={manrope.className}
         value={value}
         onChange={handleAmountChange}
         ref={amountInputRef}

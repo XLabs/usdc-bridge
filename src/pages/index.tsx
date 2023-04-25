@@ -33,23 +33,11 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import DarkModeSwitch from "@/components/atoms/DarkModeSwitch";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // import Splash from "@/components/atoms/Splash";
 
-import { constants, Contract, ethers, Signer } from "ethers";
-import {
-  ChainId,
-  CHAIN_ID_AVAX,
-  CHAIN_ID_ETH,
-  getEmitterAddressEth,
-  getSignedVAAWithRetry,
-  parseSequenceFromLogEth,
-  parseVaa,
-  uint8ArrayToHex,
-  toChainName,
-  CONTRACTS,
-} from "@certusone/wormhole-sdk";
+import { Contract, ethers, Signer } from "ethers";
+import { ChainId, CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
@@ -410,9 +398,7 @@ export default function Home() {
       if (circleBridgeMessage === null || circleAttestation === null) {
         throw new Error(`Error parsing receipt for ${tx.hash}`);
       }
-
-      // infoToast("(3/X) | Circle message found");
-
+      // Circle message found
       successToast("(3/3) Your transfer was sent successfully!");
       await refetch();
     } catch (e) {
@@ -584,16 +570,6 @@ export default function Home() {
           </a>
         </footer>
       </main>
-
-      <ToastContainer
-        newestOnTop={false}
-        closeOnClick={false}
-        rtl={false}
-        pauseOnFocusLoss={false}
-        toastStyle={{ cursor: "default", textAlign: "center" }}
-        draggable={false}
-        pauseOnHover
-      />
     </>
   );
 }

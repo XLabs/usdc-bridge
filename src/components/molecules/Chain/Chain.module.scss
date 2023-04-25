@@ -3,7 +3,6 @@
 .chainContainer {
   width: 100%;
   height: 5vh;
-  box-shadow: 1px 1px 3px 2px rgba(var(--foreground-rgb), 0.25);
   border-radius: 4px;
   background-color: rgb(var(--background-end-rgb));
 
@@ -12,6 +11,8 @@
   align-items: center;
   position: relative;
   user-select: none;
+
+  border: 1px solid rgba(var(--foreground-rgb), 0.5);
 
   .chainImg {
     user-select: none;
@@ -46,18 +47,19 @@
   .chainOption {
     z-index: 3;
     position: absolute;
+    height: 5vh;
+    width: 100%;
+
     cursor: pointer;
     top: calc(5vh + 2px);
     user-select: none;
 
-    box-shadow: 1px 2px 3px 1px rgba(var(--foreground-rgb), 0.25);
+    border: 1px solid rgba(var(--foreground-rgb), 0.5);
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    height: 40px;
-    width: 100%;
     font-size: 14px;
 
     border-radius: 6px;
@@ -72,7 +74,7 @@
 
     @include tablet {
       font-size: 20px;
-      width: 200px;
+      // width: 200px;
       padding-right: 6px;
     }
 
