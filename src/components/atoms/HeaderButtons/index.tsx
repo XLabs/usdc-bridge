@@ -9,6 +9,7 @@ type Props = {
   sourceChainId: ChainId;
   headerWalletTxt: any;
   disconnect: () => void;
+  blockedInteractions: boolean;
 };
 
 const HeaderButtons = ({
@@ -17,6 +18,7 @@ const HeaderButtons = ({
   sourceChainId,
   headerWalletTxt,
   disconnect,
+  blockedInteractions,
 }: Props) => {
   const [showDisconnectHeaderBtn, setShowDisconnectHeaderBtn] = useState(false);
   const disconnectHeaderBtnRef = useRef<HTMLButtonElement>(null);
@@ -24,16 +26,19 @@ const HeaderButtons = ({
   return (
     <div className={styles.headerButtons}>
       <button
+        style={{ cursor: blockedInteractions ? "not-allowed" : "pointer" }}
         onClick={() => {
-          if (isConnected) {
-            if (!showDisconnectHeaderBtn) {
-              setShowDisconnectHeaderBtn(true);
-              setTimeout(() => {
-                disconnectHeaderBtnRef.current?.focus();
-              }, 0);
+          if (!blockedInteractions) {
+            if (isConnected) {
+              if (!showDisconnectHeaderBtn) {
+                setShowDisconnectHeaderBtn(true);
+                setTimeout(() => {
+                  disconnectHeaderBtnRef.current?.focus();
+                }, 0);
+              }
+            } else {
+              connect({ chainId: getEvmChainId(sourceChainId) });
             }
-          } else {
-            connect({ chainId: getEvmChainId(sourceChainId) });
           }
         }}
       >
@@ -41,11 +46,14 @@ const HeaderButtons = ({
       </button>
       {showDisconnectHeaderBtn && (
         <button
+          style={{ cursor: blockedInteractions ? "not-allowed" : "pointer" }}
           ref={disconnectHeaderBtnRef}
           className={styles.disconnectHeaderBtn}
           onClick={() => {
-            disconnect();
-            setShowDisconnectHeaderBtn(false);
+            if (!blockedInteractions) {
+              disconnect();
+              setShowDisconnectHeaderBtn(false);
+            }
           }}
           onBlur={() => {
             setTimeout(() => {

@@ -7,7 +7,7 @@ import { errorToast, infoToast, successToast } from "./toast";
 
 export default function useAllowance(
   signer: ethers.Signer,
-  evmChainId: 5 | 43113 | undefined,
+  evmChainId: 1 | 5 | 43113 | 43114 | undefined,
   tokenAddress: string,
   transferAmount: string,
   overrideAddress: string
@@ -27,15 +27,15 @@ export default function useAllowance(
 
       getAllowanceEth(overrideAddress, tokenAddress, signer).then(
         (result) => {
-          console.log("get allowance ok");
+          // console.log("get allowance ok");
           if (!cancelled) {
             setIsFetchingAllowance(false);
-            console.log("result of allowance", result);
+            // console.log("result of allowance", result);
             setAllowance(formatUnits(result, USDC_DECIMALS));
           }
         },
         (error) => {
-          console.log("get allowance denied", error);
+          // console.log("get allowance denied", error);
           if (!cancelled) {
             setIsFetchingAllowance(false);
             // we can setError(error) here to tell something went wrong allowing eths.
@@ -48,10 +48,6 @@ export default function useAllowance(
       cancelled = true;
     };
   }, [evmChainId, tokenAddress, isProcessingApproval, overrideAddress, signer]);
-
-  useEffect(() => {
-    console.log("allowance:", allowance);
-  }, [allowance]);
 
   const approveAmount: (amount: string) => void = useMemo(() => {
     return (amount: string) => {
@@ -79,7 +75,6 @@ export default function useAllowance(
           );
         })
         .finally(() => {
-          console.log("finally!!!");
           setIsApproving(false);
         });
     };

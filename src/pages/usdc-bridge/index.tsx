@@ -1,6 +1,6 @@
 import { Manrope } from "next/font/google";
-import styles from "./app.module.scss";
-import { useCallback, useEffect, useRef, useState } from "react";
+import styles from "@/pages/app.module.scss";
+import { useCallback, useEffect, useState } from "react";
 import {
   AMOUNT_DECIMALS,
   CIRCLE_BRIDGE_ADDRESSES,
@@ -8,10 +8,14 @@ import {
   CIRCLE_EMITTER_ADDRESSES,
   getEvmChainId,
   IChain,
-  RPCS,
+  isMainnet,
+  RPCS_TESTNET,
+  RPCS_MAINNET,
   USDC_ADDRESSES_MAINNET,
   USDC_ADDRESSES_TESTNET,
   USDC_DECIMALS,
+  USDC_RELAYER_MAINNET,
+  USDC_RELAYER_TESTNET,
   USDC_WH_EMITTER,
   WEBAPP_URL,
 } from "@/constants";
@@ -37,7 +41,7 @@ import "react-toastify/dist/ReactToastify.css";
 // import Splash from "@/components/atoms/Splash";
 
 import { Contract, ethers, Signer } from "ethers";
-import { ChainId, CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
@@ -46,6 +50,7 @@ import { handleCircleMessageInLogs } from "@/utils/circle";
 import HeaderButtons from "@/components/atoms/HeaderButtons";
 
 const manrope = Manrope({ subsets: ["latin"] });
+const chainList = isMainnet ? [avalanche, mainnet] : [avalancheFuji, goerli];
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
@@ -71,7 +76,7 @@ export default function Home() {
       );
     },
     connector: new InjectedConnector({
-      chains: [avalancheFuji, goerli],
+      chains: chainList,
     }),
   });
   const { disconnect } = useDisconnect();
@@ -108,7 +113,9 @@ export default function Home() {
   const { data, refetch } = useBalance({
     chainId: getEvmChainId(sourceChainId),
     address: address,
-    token: USDC_ADDRESSES_TESTNET[sourceChainId],
+    token: isMainnet
+      ? USDC_ADDRESSES_MAINNET[sourceChainId]
+      : USDC_ADDRESSES_TESTNET[sourceChainId],
   });
 
   // main button function:
@@ -194,15 +201,21 @@ export default function Home() {
   };
 
   // SMART CONTRACTS CONSTS/STATES
-  const USDC_RELAYER_TESTNET: { [key in ChainId]?: string } = {
-    [CHAIN_ID_ETH]: "0xb9f955b03cea9315247e77a09b6e2f1c587e017f",
-    [CHAIN_ID_AVAX]: "0xb9f955b03cea9315247e77a09b6e2f1c587e017f",
-  };
-  const sourceRelayContract = USDC_RELAYER_TESTNET[sourceChainId];
-  const destinationRelayContract = USDC_RELAYER_TESTNET[destinationChainId];
+  const sourceRelayContract = isMainnet
+    ? USDC_RELAYER_MAINNET[sourceChainId]
+    : USDC_RELAYER_TESTNET[sourceChainId];
 
-  const sourceAsset = USDC_ADDRESSES_TESTNET[sourceChainId];
-  const destinationAsset = USDC_ADDRESSES_TESTNET[destinationChainId];
+  const destinationRelayContract = isMainnet
+    ? USDC_RELAYER_MAINNET[destinationChainId]
+    : USDC_RELAYER_TESTNET[destinationChainId];
+
+  const sourceAsset = isMainnet
+    ? USDC_ADDRESSES_MAINNET[sourceChainId]
+    : USDC_ADDRESSES_TESTNET[sourceChainId];
+
+  const destinationAsset = isMainnet
+    ? USDC_ADDRESSES_MAINNET[destinationChainId]
+    : USDC_ADDRESSES_TESTNET[destinationChainId];
 
   const [maxDestinationGas, setMaxDestinationGas] = useState<bigint | null>(
     null
@@ -218,7 +231,7 @@ export default function Home() {
   } = useAllowance(
     signer as Signer,
     getEvmChainId(sourceChainId),
-    USDC_ADDRESSES_TESTNET[sourceChainId]!,
+    sourceAsset!,
     amount,
     sourceRelayContract!
   );
@@ -250,7 +263,9 @@ export default function Home() {
     const targetEVMChain = getEvmChainId(destinationChainId);
     if (!targetEVMChain) return;
 
-    const targetRPC = RPCS[targetEVMChain];
+    const targetRPC = isMainnet
+      ? RPCS_MAINNET[targetEVMChain]
+      : RPCS_TESTNET[targetEVMChain];
     if (!targetRPC) return;
 
     const provider = new ethers.providers.StaticJsonRpcProvider(targetRPC);
@@ -284,7 +299,9 @@ export default function Home() {
     const destinationEVMChain = getEvmChainId(destinationChainId);
     if (!destinationEVMChain) return;
 
-    const destinationRPC = RPCS[destinationEVMChain];
+    const destinationRPC = isMainnet
+      ? RPCS_MAINNET[destinationEVMChain]
+      : RPCS_TESTNET[destinationEVMChain];
     if (!destinationRPC) return;
 
     const provider = new ethers.providers.StaticJsonRpcProvider(destinationRPC);
@@ -454,6 +471,7 @@ export default function Home() {
               connect={connect}
               sourceChainId={sourceChainId}
               headerWalletTxt={headerWalletTxt}
+              blockedInteractions={blockedInteractions}
             />
           </div>
         </header>
