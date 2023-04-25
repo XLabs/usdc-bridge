@@ -9,6 +9,7 @@ import {
   USDC_ADDRESSES_MAINNET,
   USDC_ADDRESSES_TESTNET,
   USDC_DECIMALS,
+  WEBAPP_URL,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
@@ -26,7 +27,6 @@ import { useDebounce } from "use-debounce";
 import Image from "next/image";
 import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
-import getPublic from "@/utils/getPublic";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import DarkModeSwitch from "@/components/atoms/DarkModeSwitch";
 import { ToastContainer } from "react-toastify";
@@ -315,9 +315,9 @@ export default function Home() {
               alt="stable logo"
               width={120}
               height={30}
-              src={getPublic("/stable.png")}
+              src={"/stable.png"}
             />
-            <a href="https://stable.io/usdc-bridge">USDC</a>
+            <a href={`${WEBAPP_URL}usdc-bridge`}>USDC</a>
           </div>
           <div className={styles.headerInteractions}>
             <DarkModeSwitch />
@@ -327,12 +327,7 @@ export default function Home() {
 
         <div className={styles.center}>
           <h2 className={styles.title}>
-            <Image
-              alt="USDC icon"
-              width={42}
-              height={42}
-              src={getPublic("/usdc.png")}
-            />
+            <Image alt="USDC icon" width={42} height={42} src={"/usdc.png"} />
             <span>USDC Bridge</span>
           </h2>
           <h3 className={styles.subtitle}>
@@ -417,7 +412,7 @@ export default function Home() {
             <span>Powered by </span>
             <Image
               alt="Powered by Circle"
-              src={getPublic("/circle.png")}
+              src={"/circle.png"}
               width={120}
               height={30}
             />
@@ -431,7 +426,7 @@ export default function Home() {
           >
             <Image
               alt="Twitter logo"
-              src={getPublic("/twitter.png")}
+              src={"/twitter.png"}
               width={20}
               height={20}
             />

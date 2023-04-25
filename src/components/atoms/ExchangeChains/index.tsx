@@ -1,6 +1,5 @@
 import styles from "./ExchangeChains.module.scss";
 import { IChain } from "@/constants";
-import getPublic from "@/utils/getPublic";
 import Image from "next/image";
 
 type Props = {
@@ -19,7 +18,7 @@ const ExchangeChains = ({ onClick, source }: Props) => {
     >
       <Image
         alt="Exchange source and destination chains"
-        src={getPublic("/exchange.png")}
+        src={"/exchange.png"}
         width={30}
         height={30}
       />

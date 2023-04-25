@@ -29,3 +29,5 @@ export const getEvmChainId = (chainId: ChainId) =>
     : chainId === CHAIN_ID_AVAX
     ? AVAX_NETWORK_CHAIN_ID_TESTNET
     : undefined;
+
+export const WEBAPP_URL = "https://dev.stable.io/";

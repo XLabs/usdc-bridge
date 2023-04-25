@@ -3,8 +3,7 @@ const isDeploying = process.env.DEPLOY === "deploy";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  basePath: isDeploying ? "/usdc-bridge" : "",
-  basePath: isDeploying ? "/usdc-bridge" : "",
+  basePath: "",
   images: {
     unoptimized: isDeploying ? true : false,
   },
