@@ -3,7 +3,7 @@ import { approveEth, getAllowanceEth } from "@certusone/wormhole-sdk";
 import { BigNumber, ethers } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 import { useEffect, useMemo, useState } from "react";
-import errorToast from "./toast";
+import { errorToast, successToast } from "./toast";
 
 export default function useAllowance(
   signer: ethers.Signer,
@@ -57,6 +57,9 @@ export default function useAllowance(
         .then(
           (fullfiled) => {
             console.log("fullfiled?", fullfiled);
+            successToast(
+              `You approved a spending limit of ${amount} successfully!`
+            );
           },
           (rejected) => {
             console.error(rejected);
