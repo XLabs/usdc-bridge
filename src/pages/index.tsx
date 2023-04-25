@@ -1,15 +1,14 @@
-import Head from "next/head";
 import { Manrope } from "next/font/google";
 import styles from "./app.module.scss";
 import { useEffect, useState } from "react";
 import {
-  IChain,
-  USDC_ADDRESSES_TESTNET,
   AMOUNT_DECIMALS,
+  getEvmChainId,
+  IChain,
   RPCS,
   USDC_ADDRESSES_MAINNET,
+  USDC_ADDRESSES_TESTNET,
   USDC_DECIMALS,
-  getEvmChainId,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
@@ -18,6 +17,7 @@ import {
   useBalance,
   useConnect,
   useDisconnect,
+  useSigner,
   useSwitchNetwork,
 } from "wagmi";
 import { avalanche, avalancheFuji, goerli, mainnet } from "wagmi/chains";
@@ -29,45 +29,58 @@ import DestinationGas from "@/components/molecules/DestinationGas";
 import getPublic from "@/utils/getPublic";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import DarkModeSwitch from "@/components/atoms/DarkModeSwitch";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // import Splash from "@/components/atoms/Splash";
 
-import { constants, Contract, ethers } from "ethers";
+import { constants, Contract, ethers, Signer } from "ethers";
 import {
   ChainId,
   CHAIN_ID_AVAX,
   CHAIN_ID_ETH,
   getEmitterAddressEth,
   getSignedVAAWithRetry,
-  isEVMChain,
   parseSequenceFromLogEth,
   parseVaa,
   uint8ArrayToHex,
 } from "@certusone/wormhole-sdk";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
+import useAllowance from "@/utils/useAllowance";
+import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
+import { errorToast } from "@/utils/toast";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
   const destination = source === "AVAX" ? "ETH" : "AVAX";
-  const changeSource = () => setSource(destination);
 
   const sourceChainId = source === "AVAX" ? CHAIN_ID_AVAX : CHAIN_ID_ETH;
   const destinationChainId = source === "AVAX" ? CHAIN_ID_ETH : CHAIN_ID_AVAX;
 
-  // ----
-  // WALLET HANDLING ---
+  // WALLET HANDLING
+  const { switchNetwork } = useSwitchNetwork();
   const { address, isConnected } = useAccount();
+  const { data: signer } = useSigner();
   const { connect } = useConnect({
+    onError: (err) => {
+      console.error(err);
+      errorToast("Error: Wallet not found (do you have Metamask installed?)");
+    },
     connector: new InjectedConnector({
       chains: [avalancheFuji, goerli],
     }),
   });
   const { disconnect } = useDisconnect();
 
+  const changeSource = () => {
+    switchNetwork?.(getEvmChainId(destinationChainId));
+    setSource(destination);
+  };
+
   useEffect(() => {
     changeAmount("0");
-    setDestinationGas(0);
+    changeDestinationGas(0);
   }, [source]); // eslint-disable-line
 
   const { data } = useBalance({
@@ -88,7 +101,15 @@ export default function Home() {
     if (!isConnected) {
       connect({ chainId: getEvmChainId(sourceChainId) });
     } else {
-      console.log("approve");
+      // TRANSFER
+      if (sufficientAllowance) {
+        console.log("TRANSFER");
+      }
+      // APPROVE
+      else {
+        console.log("APPROVE");
+        approveAmount(amount);
+      }
     }
   };
 
@@ -96,31 +117,14 @@ export default function Home() {
   const [headerWalletTxt, setHeaderWalletTxt] = useState<any>("...");
   const [balance, setBalance] = useState("");
 
-  useEffect(() => {
-    if (data?.formatted) {
-      setBalance(data.formatted);
-    } else {
-      setBalance("");
-    }
-
-    setBoxWalletTxt(isConnected ? "Approve" : "Connect Wallet");
-    setHeaderWalletTxt(
-      isConnected
-        ? `${address?.slice(0, 6)}...${address?.slice(-6)}`
-        : "Connect Wallet"
-    );
-  }, [address, isConnected, data]);
-
+  // AMOUNT TO TRANSFER SHOULD NEVER BE HIGHER THAN BALANCE
   useEffect(() => {
     if (balance && +balance < +amount) {
-      console.log("TEST TEST balance", balance);
-      console.log("TEST TEST amount", amount);
       changeAmount(balance);
     }
   }, [balance]); // eslint-disable-line
 
-  // ----
-  // AMOUNTS HANDLING ---
+  // MORE AMOUNT STATES
   const [destinationGas, setDestinationGas] = useState(0);
   const [amount, setAmount] = useState("0");
 
@@ -129,6 +133,7 @@ export default function Home() {
 
   const [sliderPercentage, setSliderPercentage] = useState(0);
 
+  // setDestinationGas but with all its logic needed
   const changeDestinationGas = (percentage: number) => {
     setSliderPercentage(percentage);
 
@@ -146,6 +151,7 @@ export default function Home() {
     }
   };
 
+  // setAmount but with all its logic needed
   const changeAmount = (a: string) => {
     let newAmount = a;
 
@@ -171,9 +177,7 @@ export default function Home() {
     setAmount(newAmount);
   };
 
-  // ----
-  // SMART CONTRACTS HANDLING ---
-
+  // SMART CONTRACTS CONSTS/STATES
   const USDC_RELAYER_TESTNET: { [key in ChainId]?: string } = {
     [CHAIN_ID_ETH]: "0xbd227cd0513889752a792c98dab42dc4d952a33b",
     [CHAIN_ID_AVAX]: "0x45ecf5c7cf9e73954277cb7d932d5311b0f64982",
@@ -188,6 +192,33 @@ export default function Home() {
     null
   );
   const [estimatedGas, setEstimatedGas] = useState<bigint | null>(null);
+
+  // GET ALLOWANCE
+  const { approveAmount, sufficientAllowance, isProcessingApproval } =
+    useAllowance(
+      signer as Signer,
+      getEvmChainId(sourceChainId),
+      USDC_ADDRESSES_TESTNET[sourceChainId]!,
+      amount,
+      sourceRelayContract!
+    );
+
+  // CHANGE BUTTON TEXTS WHEN CHANGING WALLETS
+  useEffect(() => {
+    if (data?.formatted) {
+      setBalance(data.formatted);
+    } else {
+      setBalance("");
+    }
+
+    if (!isConnected) {
+      setHeaderWalletTxt("Connect Wallet");
+      setBoxWalletTxt("Connect Wallet");
+    } else {
+      setHeaderWalletTxt(`${address?.slice(0, 6)}...${address?.slice(-6)}`);
+      setBoxWalletTxt(sufficientAllowance ? "Transfer" : "Approve");
+    }
+  }, [address, isConnected, data, sufficientAllowance]);
 
   // GET MAX DESTINATION GAS ON USDC EFFECT
   useEffect(() => {
@@ -267,63 +298,17 @@ export default function Home() {
     debouncedToNativeAmount,
   ]);
 
-  // ----
-  // PRE-PROCESSED VARIABLES ---
+  // PRE-PROCESSED VARIABLES
   const stringifiedEstimatedGas = estimatedGas
     ? Number(formatUnits(estimatedGas, 18)).toFixed(6)
     : "";
 
   return (
     <>
-      <Head>
-        <title>USDC Bridge | Cross-Chain USDC Transfer</title>
-        <meta
-          name="description"
-          content="Bridge USDC natively between blockchains for free. Send or transfer USDC between Ethereum and Avalanche powered by Circle’s Cross-Chain Transfer Protocol."
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta
-          property="og:title"
-          content="Stable: Cross-Chain USDC Transfers"
-        />
-        <meta
-          property="og:description"
-          content="Bridge or transfer native USDC between Ethereum and Avalanche powered by Circle's CCTP."
-        />
-        <meta
-          property="og:image"
-          content="https://stable.io/stable_banner.png"
-        />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href={getPublic("/apple-touch-icon.png")}
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href={getPublic("/favicon-32x32.png")}
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href={getPublic("/favicon-16x16.png")}
-        />
-        <link rel="manifest" href={getPublic("/site.webmanifest")} />
-        <link
-          rel="mask-icon"
-          href={getPublic("/safari-pinned-tab.svg")}
-          color="#5bbad5"
-        />
-        <link rel="icon" href={getPublic("/favicon.ico")} />
-        <meta name="theme-color" content="#ffffff" />
-      </Head>
+      <HeadAndMetadata />
 
       <main className={`${styles.main} ${manrope.className}`}>
         {/* <Splash /> */}
-
         <header className={styles.header}>
           <div className={styles.logo}>
             <Image
@@ -359,14 +344,22 @@ export default function Home() {
             <div className={styles.fromToContainer}>
               <div className={styles.chain}>
                 <div className={styles.boxText}>From</div>
-                <Chain source={source} setSource={setSource} initial="AVAX" />
+                <Chain
+                  source={source}
+                  changeSource={changeSource}
+                  initial="AVAX"
+                />
               </div>
 
               <ExchangeChains onClick={changeSource} source={source} />
 
               <div className={styles.chain}>
                 <div className={styles.boxText}>To</div>
-                <Chain source={source} setSource={setSource} initial="ETH" />
+                <Chain
+                  source={source}
+                  changeSource={changeSource}
+                  initial="ETH"
+                />
               </div>
             </div>
 
@@ -408,7 +401,12 @@ export default function Home() {
               destination={destination}
             />
 
-            <button onClick={handleBoxWallet}>{boxWalletTxt}</button>
+            <button
+              onClick={handleBoxWallet}
+              className={`${isProcessingApproval ? styles.btnLoading : ""}`}
+            >
+              {isProcessingApproval ? "..." : boxWalletTxt}
+            </button>
           </div>
 
           <a
@@ -443,6 +441,15 @@ export default function Home() {
           </a>
         </footer>
       </main>
+
+      <ToastContainer
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover
+      />
     </>
   );
 }

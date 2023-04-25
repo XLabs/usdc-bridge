@@ -11,6 +11,12 @@ body {
   font-weight: 500;
 }
 
+body,
+button,
+div {
+  transition: background 0.14s ease-out;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(

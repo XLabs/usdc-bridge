@@ -7,11 +7,11 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = {
   source: IChain;
-  setSource: (src: IChain) => void;
+  changeSource: () => void;
   initial: IChain;
 };
 
-const Chain = ({ source, setSource, initial }: Props) => {
+const Chain = ({ source, changeSource, initial }: Props) => {
   const initialSrc = initial === "AVAX" ? "/avalanche.svg" : "/ethereum.svg";
   const otherSrc = initial === "AVAX" ? "/ethereum.svg" : "/avalanche.svg";
 
@@ -79,7 +79,7 @@ const Chain = ({ source, setSource, initial }: Props) => {
           onBlur={handleSelect}
           onClick={() => {
             handleSelect();
-            setSource(isAVAX ? "ETH" : "AVAX");
+            changeSource();
           }}
         >
           <Image
