@@ -54,7 +54,7 @@ import {
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
-import { errorToast, successToast } from "@/utils/toast";
+import { errorToast, infoToast, successToast } from "@/utils/toast";
 import { handleCircleMessageInLogs } from "@/utils/circle";
 
 const manrope = Manrope({ subsets: ["latin"] });
@@ -213,126 +213,6 @@ export default function Home() {
       sourceRelayContract!
     );
 
-  // ACTUAL TOKEN TRANSFERS
-  const [isTransfering, setIsTransfering] = useState(false);
-  const [transferInfo, setTransferInfo] = useState<
-    null | [string | null, string, string]
-  >(null);
-  const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
-
-  useEffect(() => {
-    console.log("tx info raw", transferInfo);
-
-    console.log("transferINFO!!", {
-      "0x_uint8ArrayToHex(vaaBytes)": transferInfo?.[0],
-      circleBridgeMessage: transferInfo?.[1],
-      circleAttestation: transferInfo?.[2],
-    });
-  }, [transferInfo]);
-
-  const handleTransferClick = useCallback(async () => {
-    if (!signer) return;
-
-    const signerAddress = await signer.getAddress();
-    if (!signerAddress) return;
-
-    if (!sourceContract || !sourceAsset) return;
-
-    const sourceEmitter = CIRCLE_EMITTER_ADDRESSES[sourceChainId];
-    if (!sourceEmitter) return;
-
-    const targetDomain = CIRCLE_DOMAINS[destinationChainId];
-    if (targetDomain === undefined) return;
-
-    const transferAmountParsed = parseUnits(amount, USDC_DECIMALS);
-    if (!transferAmountParsed) return;
-
-    const sourceRelayEmitter = USDC_WH_EMITTER[sourceChainId];
-    if (!sourceRelayContract || !sourceRelayEmitter) return;
-
-    const contract = new Contract(
-      sourceRelayContract,
-      [
-        `function transferTokensWithRelay(
-            address token,
-            uint256 amount,
-            uint256 toNativeTokenAmount,
-            uint16 targetChain,
-            bytes32 targetRecipientWallet
-          ) external payable returns (uint64 messageSequence)`,
-      ],
-      signer
-    );
-
-    setIsTransfering(true);
-
-    try {
-      const tx = await contract.transferTokensWithRelay(
-        sourceAsset,
-        transferAmountParsed,
-        toNativeAmount,
-        destinationChainId,
-        hexZeroPad(signerAddress, 32)
-      );
-
-      // setSourceTxHash(tx.hash);
-      console.log("SOURCE TX HASH!!:", tx.hash);
-
-      const receipt = await tx.wait();
-      // setSourceTxConfirmed(true);
-      console.log("source TX confirmed!!!!");
-
-      if (!receipt) {
-        throw new Error("Invalid receipt");
-      }
-
-      // find circle message
-      const [circleBridgeMessage, circleAttestation] =
-        await handleCircleMessageInLogs(receipt.logs, sourceEmitter);
-
-      if (circleBridgeMessage === null || circleAttestation === null) {
-        throw new Error(`Error parsing receipt for ${tx.hash}`);
-      }
-
-      // find wormhole message
-      const seq = parseSequenceFromLogEth(
-        receipt,
-        CONTRACTS["TESTNET"][toChainName(sourceChainId)].core || ""
-      );
-
-      const { vaaBytes } = await getSignedVAAWithRetry(
-        WORMHOLE_RPC_HOSTS,
-        sourceChainId,
-        sourceRelayEmitter,
-        seq
-      );
-
-      // TODO: more discreet state for better loading messages
-      setTransferInfo([
-        `0x${uint8ArrayToHex(vaaBytes)}`,
-        circleBridgeMessage,
-        circleAttestation,
-      ]);
-    } catch (e) {
-      console.error(e);
-      errorToast(
-        "Error: Something went wrong. Check the console for more info"
-      );
-    } finally {
-      setIsTransfering(false);
-      successToast("Your transfer was sent successfully!");
-    }
-  }, [
-    amount,
-    signer,
-    sourceContract,
-    sourceAsset,
-    sourceChainId,
-    destinationChainId,
-    sourceRelayContract,
-    toNativeAmount,
-  ]);
-
   // CHANGE BUTTON TEXTS WHEN CHANGING WALLETS
   useEffect(() => {
     if (data?.formatted) {
@@ -426,6 +306,126 @@ export default function Home() {
     destinationAsset,
     destinationChainId,
     debouncedToNativeAmount,
+  ]);
+
+  // ACTUAL TOKEN TRANSFERS
+  const [isTransfering, setIsTransfering] = useState(false);
+  const [sourceTxHash, setSourceTxHash] = useState("");
+  const [sourceTxConfirmed, setSourceTxConfirmed] = useState(false);
+  const [transferInfo, setTransferInfo] = useState<null | {
+    VAA: string | null;
+    circleBridgeMessage: string;
+    circleAttestation: string;
+  }>(null);
+
+  const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
+
+  const handleTransferClick = useCallback(async () => {
+    if (!signer) return;
+
+    const signerAddress = await signer.getAddress();
+    if (!signerAddress) return;
+
+    if (!sourceContract || !sourceAsset) return;
+
+    const sourceEmitter = CIRCLE_EMITTER_ADDRESSES[sourceChainId];
+    if (!sourceEmitter) return;
+
+    const targetDomain = CIRCLE_DOMAINS[destinationChainId];
+    if (targetDomain === undefined) return;
+
+    const transferAmountParsed = parseUnits(amount, USDC_DECIMALS);
+    if (!transferAmountParsed) return;
+
+    const sourceRelayEmitter = USDC_WH_EMITTER[sourceChainId];
+    if (!sourceRelayContract || !sourceRelayEmitter) return;
+
+    const contract = new Contract(
+      sourceRelayContract,
+      [
+        `function transferTokensWithRelay(
+            address token,
+            uint256 amount,
+            uint256 toNativeTokenAmount,
+            uint16 targetChain,
+            bytes32 targetRecipientWallet
+          ) external payable returns (uint64 messageSequence)`,
+      ],
+      signer
+    );
+
+    setIsTransfering(true);
+
+    try {
+      const tx = await contract.transferTokensWithRelay(
+        sourceAsset,
+        transferAmountParsed,
+        toNativeAmount,
+        destinationChainId,
+        hexZeroPad(signerAddress, 32)
+      );
+
+      setSourceTxHash(tx.hash);
+      infoToast(`(1/X) Transaction hash: ${tx.hash}`);
+      console.log("tx hash:", tx.hash);
+
+      const receipt = await tx.wait();
+
+      if (!receipt) {
+        throw new Error("Invalid receipt");
+      }
+
+      setSourceTxConfirmed(true);
+      infoToast("(2/X) Source transaction confirmed");
+
+      // find circle message
+      const [circleBridgeMessage, circleAttestation] =
+        await handleCircleMessageInLogs(receipt.logs, sourceEmitter);
+
+      if (circleBridgeMessage === null || circleAttestation === null) {
+        throw new Error(`Error parsing receipt for ${tx.hash}`);
+      }
+
+      infoToast("(3/X) | Circle message found");
+
+      // find wormhole message
+      const seq = parseSequenceFromLogEth(
+        receipt,
+        CONTRACTS["TESTNET"][toChainName(sourceChainId)].core || ""
+      );
+
+      const { vaaBytes } = await getSignedVAAWithRetry(
+        WORMHOLE_RPC_HOSTS,
+        sourceChainId,
+        sourceRelayEmitter,
+        seq
+      );
+
+      // TRANSACTION COMPLETE.
+      setTransferInfo({
+        VAA: `0x${uint8ArrayToHex(vaaBytes)}`,
+        circleBridgeMessage,
+        circleAttestation,
+      });
+
+      successToast("Your transfer was sent successfully!");
+    } catch (e) {
+      console.error(e);
+      errorToast(
+        "Error: Something went wrong. Check the console for more info"
+      );
+    } finally {
+      setIsTransfering(false);
+    }
+  }, [
+    amount,
+    signer,
+    sourceContract,
+    sourceAsset,
+    sourceChainId,
+    destinationChainId,
+    sourceRelayContract,
+    toNativeAmount,
   ]);
 
   // PRE-PROCESSED VARIABLES

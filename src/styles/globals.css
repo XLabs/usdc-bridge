@@ -18,6 +18,8 @@ div {
 }
 
 body {
+  --toastify-toast-width: 480px;
+
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
