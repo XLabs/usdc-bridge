@@ -1,15 +1,20 @@
 import { Manrope } from "next/font/google";
 import styles from "./app.module.scss";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AMOUNT_DECIMALS,
+  CIRCLE_BRIDGE_ADDRESSES,
+  CIRCLE_DOMAINS,
+  CIRCLE_EMITTER_ADDRESSES,
   getEvmChainId,
   IChain,
   RPCS,
   USDC_ADDRESSES_MAINNET,
   USDC_ADDRESSES_TESTNET,
   USDC_DECIMALS,
+  USDC_WH_EMITTER,
   WEBAPP_URL,
+  WORMHOLE_RPC_HOSTS,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
@@ -43,11 +48,14 @@ import {
   parseSequenceFromLogEth,
   parseVaa,
   uint8ArrayToHex,
+  toChainName,
+  CONTRACTS,
 } from "@certusone/wormhole-sdk";
-import { formatUnits, parseUnits } from "ethers/lib/utils.js";
+import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
-import { errorToast } from "@/utils/toast";
+import { errorToast, successToast } from "@/utils/toast";
+import { handleCircleMessageInLogs } from "@/utils/circle";
 
 const manrope = Manrope({ subsets: ["latin"] });
 
@@ -97,6 +105,7 @@ export default function Home() {
     }
   };
 
+  // main button function:
   const handleBoxWallet = () => {
     if (!isConnected) {
       connect({ chainId: getEvmChainId(sourceChainId) });
@@ -104,6 +113,7 @@ export default function Home() {
       // TRANSFER
       if (sufficientAllowance) {
         console.log("TRANSFER");
+        handleTransferClick();
       }
       // APPROVE
       else {
@@ -179,8 +189,8 @@ export default function Home() {
 
   // SMART CONTRACTS CONSTS/STATES
   const USDC_RELAYER_TESTNET: { [key in ChainId]?: string } = {
-    [CHAIN_ID_ETH]: "0xbd227cd0513889752a792c98dab42dc4d952a33b",
-    [CHAIN_ID_AVAX]: "0x45ecf5c7cf9e73954277cb7d932d5311b0f64982",
+    [CHAIN_ID_ETH]: "0xb9f955b03cea9315247e77a09b6e2f1c587e017f",
+    [CHAIN_ID_AVAX]: "0xb9f955b03cea9315247e77a09b6e2f1c587e017f",
   };
   const sourceRelayContract = USDC_RELAYER_TESTNET[sourceChainId];
   const destinationRelayContract = USDC_RELAYER_TESTNET[destinationChainId];
@@ -202,6 +212,126 @@ export default function Home() {
       amount,
       sourceRelayContract!
     );
+
+  // ACTUAL TOKEN TRANSFERS
+  const [isTransfering, setIsTransfering] = useState(false);
+  const [transferInfo, setTransferInfo] = useState<
+    null | [string | null, string, string]
+  >(null);
+  const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
+
+  useEffect(() => {
+    console.log("tx info raw", transferInfo);
+
+    console.log("transferINFO!!", {
+      "0x_uint8ArrayToHex(vaaBytes)": transferInfo?.[0],
+      circleBridgeMessage: transferInfo?.[1],
+      circleAttestation: transferInfo?.[2],
+    });
+  }, [transferInfo]);
+
+  const handleTransferClick = useCallback(async () => {
+    if (!signer) return;
+
+    const signerAddress = await signer.getAddress();
+    if (!signerAddress) return;
+
+    if (!sourceContract || !sourceAsset) return;
+
+    const sourceEmitter = CIRCLE_EMITTER_ADDRESSES[sourceChainId];
+    if (!sourceEmitter) return;
+
+    const targetDomain = CIRCLE_DOMAINS[destinationChainId];
+    if (targetDomain === undefined) return;
+
+    const transferAmountParsed = parseUnits(amount, USDC_DECIMALS);
+    if (!transferAmountParsed) return;
+
+    const sourceRelayEmitter = USDC_WH_EMITTER[sourceChainId];
+    if (!sourceRelayContract || !sourceRelayEmitter) return;
+
+    const contract = new Contract(
+      sourceRelayContract,
+      [
+        `function transferTokensWithRelay(
+            address token,
+            uint256 amount,
+            uint256 toNativeTokenAmount,
+            uint16 targetChain,
+            bytes32 targetRecipientWallet
+          ) external payable returns (uint64 messageSequence)`,
+      ],
+      signer
+    );
+
+    setIsTransfering(true);
+
+    try {
+      const tx = await contract.transferTokensWithRelay(
+        sourceAsset,
+        transferAmountParsed,
+        toNativeAmount,
+        destinationChainId,
+        hexZeroPad(signerAddress, 32)
+      );
+
+      // setSourceTxHash(tx.hash);
+      console.log("SOURCE TX HASH!!:", tx.hash);
+
+      const receipt = await tx.wait();
+      // setSourceTxConfirmed(true);
+      console.log("source TX confirmed!!!!");
+
+      if (!receipt) {
+        throw new Error("Invalid receipt");
+      }
+
+      // find circle message
+      const [circleBridgeMessage, circleAttestation] =
+        await handleCircleMessageInLogs(receipt.logs, sourceEmitter);
+
+      if (circleBridgeMessage === null || circleAttestation === null) {
+        throw new Error(`Error parsing receipt for ${tx.hash}`);
+      }
+
+      // find wormhole message
+      const seq = parseSequenceFromLogEth(
+        receipt,
+        CONTRACTS["TESTNET"][toChainName(sourceChainId)].core || ""
+      );
+
+      const { vaaBytes } = await getSignedVAAWithRetry(
+        WORMHOLE_RPC_HOSTS,
+        sourceChainId,
+        sourceRelayEmitter,
+        seq
+      );
+
+      // TODO: more discreet state for better loading messages
+      setTransferInfo([
+        `0x${uint8ArrayToHex(vaaBytes)}`,
+        circleBridgeMessage,
+        circleAttestation,
+      ]);
+    } catch (e) {
+      console.error(e);
+      errorToast(
+        "Error: Something went wrong. Check the console for more info"
+      );
+    } finally {
+      setIsTransfering(false);
+      successToast("Your transfer was sent successfully!");
+    }
+  }, [
+    amount,
+    signer,
+    sourceContract,
+    sourceAsset,
+    sourceChainId,
+    destinationChainId,
+    sourceRelayContract,
+    toNativeAmount,
+  ]);
 
   // CHANGE BUTTON TEXTS WHEN CHANGING WALLETS
   useEffect(() => {
@@ -303,6 +433,8 @@ export default function Home() {
     ? Number(formatUnits(estimatedGas, 18)).toFixed(6)
     : "";
 
+  const mainBtnLoading = isProcessingApproval || isTransfering;
+
   return (
     <>
       <HeadAndMetadata />
@@ -397,10 +529,10 @@ export default function Home() {
             />
 
             <button
-              onClick={handleBoxWallet}
-              className={`${isProcessingApproval ? styles.btnLoading : ""}`}
+              onClick={() => !mainBtnLoading && handleBoxWallet()}
+              className={`${mainBtnLoading ? styles.btnLoading : ""}`}
             >
-              {isProcessingApproval ? "..." : boxWalletTxt}
+              {mainBtnLoading ? "..." : boxWalletTxt}
             </button>
           </div>
 

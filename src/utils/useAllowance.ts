@@ -13,7 +13,7 @@ export default function useAllowance(
   overrideAddress: string
 ) {
   const [allowance, setAllowance] = useState<string | null>(null);
-  const [isAllowanceFetching, setIsAllowanceFetching] = useState(false);
+  // const [isAllowanceFetching, setIsAllowanceFetching] = useState(false);
   const [isProcessingApproval, setIsApproving] = useState<boolean>(false);
 
   const sufficientAllowance =
@@ -23,19 +23,19 @@ export default function useAllowance(
     let cancelled = false;
     if (tokenAddress && signer && overrideAddress && !isProcessingApproval) {
       console.log("efecto turbio post finally");
-      setIsAllowanceFetching(true);
+      // setIsAllowanceFetching(true);
       getAllowanceEth(overrideAddress, tokenAddress, signer).then(
         (result) => {
-          console.log("turbio result!");
+          // console.log("turbio result!");
           if (!cancelled) {
-            setIsAllowanceFetching(false);
+            // setIsAllowanceFetching(false);
             setAllowance(formatUnits(result, USDC_DECIMALS));
           }
         },
         (error) => {
-          console.log("turbio error", error);
+          // console.log("turbio error", error);
           if (!cancelled) {
-            setIsAllowanceFetching(false);
+            // setIsAllowanceFetching(false);
             // todo: we can setError(error) here to tell something went wrong allowing eths.
           }
         }
