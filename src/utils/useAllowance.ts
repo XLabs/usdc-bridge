@@ -61,9 +61,7 @@ export default function useAllowance(
       approveEth(overrideAddress!, tokenAddress!, signer, usdcWei, {})
         .then(
           (_fullfiled) => {
-            successToast(
-              `You approved a spending limit of ${amount} successfully!`
-            );
+            successToast("You approved a spending limit successfully!");
           },
           (rejected) => {
             console.error(rejected);
