@@ -54,7 +54,7 @@ export const getEvmChainId = (chainId: ChainId) =>
     : undefined;
 
 export const WEBAPP_URL = isMainnet
-  ? "https://stable.io"
+  ? "https://stable.portalbridge.com/"
   : "https://dev.stable.io/";
 
 export const CIRCLE_BRIDGE_ADDRESSES: { [key in ChainId]?: string } = {
