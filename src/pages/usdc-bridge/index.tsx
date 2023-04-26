@@ -449,8 +449,6 @@ export default function Home() {
 
   return (
     <>
-      <HeadAndMetadata />
-
       <main className={`${styles.main} ${manrope.className}`}>
         {/* <Splash /> */}
         <header className={styles.header}>

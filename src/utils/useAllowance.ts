@@ -16,8 +16,6 @@ export default function useAllowance(
   const [isFetchingAllowance, setIsFetchingAllowance] = useState(false);
   const [isProcessingApproval, setIsApproving] = useState<boolean>(false);
 
-  console.log("allowance", allowance);
-
   const sufficientAllowance =
     allowance && transferAmount && +allowance >= +transferAmount;
 
@@ -29,18 +27,16 @@ export default function useAllowance(
 
       getAllowanceEth(overrideAddress, tokenAddress, signer).then(
         (result) => {
-          // console.log("get allowance ok");
           if (!cancelled) {
             setIsFetchingAllowance(false);
-            // console.log("result of allowance", result);
+            console.log("allowance", formatUnits(result, USDC_DECIMALS));
             setAllowance(formatUnits(result, USDC_DECIMALS));
           }
         },
         (error) => {
-          // console.log("get allowance denied", error);
           if (!cancelled) {
             setIsFetchingAllowance(false);
-            // we can setError(error) here to tell something went wrong allowing eths.
+            // we can setError(error) here to tell something went wrong allowing spend limit
           }
         }
       );

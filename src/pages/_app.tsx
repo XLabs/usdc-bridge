@@ -4,6 +4,7 @@ import { WagmiConfig, configureChains, createClient } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
 import { avalanche, avalancheFuji, mainnet, goerli } from "wagmi/chains";
 import { ToastContainer } from "react-toastify";
+import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
 
 export default function App({ Component, pageProps }: AppProps) {
   const { provider, webSocketProvider } = configureChains(
@@ -19,6 +20,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <WagmiConfig client={client}>
+      <HeadAndMetadata />
       <ToastContainer
         newestOnTop={false}
         closeOnClick={false}

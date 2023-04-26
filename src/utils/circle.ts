@@ -11,10 +11,7 @@ export const findCircleMessageInLogs = (
   circleEmitterAddress: string
 ): string | null => {
   for (const log of logs) {
-    if (
-      log.address == circleEmitterAddress ||
-      Number(log.address) == Number(circleEmitterAddress)
-    ) {
+    if (log.address.toLowerCase() === circleEmitterAddress.toLowerCase()) {
       const messageSentIface = new ethers.utils.Interface([
         "event MessageSent(bytes message)",
       ]);
