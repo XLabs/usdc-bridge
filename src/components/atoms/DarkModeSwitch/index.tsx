@@ -33,7 +33,7 @@ const DarkModeSwitch = () => {
       className={styles.darkModeContainer}
       onClick={handleChangeMode}
       style={{
-        backgroundColor: isDarkMode ? "#444" : "#ccc",
+        backgroundColor: isDarkMode ? "#333" : "#ccc",
       }}
     >
       <div

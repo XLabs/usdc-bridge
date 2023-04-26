@@ -214,7 +214,7 @@
           }
 
           &.txLoading::before {
-            animation: loading 1560s forwards !important; // 13 minutes (100% its twice the animation)
+            animation: loading 1000s forwards !important;
 
             background-image: linear-gradient(
               90deg,

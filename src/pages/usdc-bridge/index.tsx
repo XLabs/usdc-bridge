@@ -465,10 +465,11 @@ export default function Home() {
         throw new Error(`Error parsing receipt for ${tx.hash}`);
       }
 
+      let attempts = 0;
       const relayResponse = async () => {
         return await axios
-          // TODO: CHANGE TO MAINNET RELAYER URL
-          .get(`${getRelayFeedbackUrl()}${tx.hash}`)
+          // TODO: CHANGE TO MAINNET RELAYER URL IF EXIST
+          .get(`${getRelayFeedbackUrl(attempts)}${tx.hash}`)
           .then((response: any) => {
             return response;
           })
@@ -486,6 +487,7 @@ export default function Home() {
 
         if (response.data?.data?.status === "redeemed") {
           const destinationTxHash = response.data.data.to.txHash;
+          setIsTransfering(false);
 
           successToast(
             <a
@@ -502,19 +504,23 @@ export default function Home() {
             11000
           );
         } else if (response !== "ERRORED") {
+          attempts++;
+          infoToast("Waiting for relay to happen...");
           setTimeout(() => {
             waitForRelayRedeem();
           }, 12000);
+        } else {
+          setIsTransfering(false);
         }
       };
       waitForRelayRedeem();
     } catch (e) {
       console.error(e);
+      setIsTransfering(false);
       errorToast(
         "Error: Something went wrong. Check the console for more info"
       );
     } finally {
-      setIsTransfering(false);
       await refetch();
     }
   }, [

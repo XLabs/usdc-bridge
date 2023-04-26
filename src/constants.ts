@@ -28,10 +28,10 @@ export const AVAX_EXPLORER = isMainnet
   ? "https://snowtrace.io/tx/"
   : "https://testnet.snowtrace.io/tx/";
 
-export const getRelayFeedbackUrl = () => {
+export const getRelayFeedbackUrl = (att: number) => {
   if (typeof window !== "undefined") {
     if (window.location.href.includes("localhost")) {
-      return "https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.dev.stable.io/v1/relays?txHash=";
+      return `https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.dev.stable.io/v1/relays?test=hola${att}&txHash=`;
     } else {
       return "https://relayer.dev.stable.io/v1/relays?txHash=";
     }

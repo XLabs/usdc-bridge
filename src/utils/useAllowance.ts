@@ -54,6 +54,13 @@ export default function useAllowance(
 
       const usdcWei = parseUnits(amount, USDC_DECIMALS);
 
+      let canceled = false;
+      setTimeout(() => {
+        if (!canceled) {
+          infoToast("Approving spending limit...");
+        }
+      }, 14000);
+
       approveEth(overrideAddress!, tokenAddress!, signer, usdcWei, {})
         .then(
           (_fullfiled) => {
@@ -73,6 +80,7 @@ export default function useAllowance(
           );
         })
         .finally(() => {
+          canceled = true;
           setIsApproving(false);
         });
     };
