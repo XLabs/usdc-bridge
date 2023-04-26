@@ -62,7 +62,7 @@ export default function useAllowance(
           (rejected) => {
             console.error(rejected);
             errorToast(
-              "Error: Something went wrong. (Did you rejected the spending limit?)"
+              "Error: Something went wrong. (Did you reject the spending limit?)"
             );
           }
         )

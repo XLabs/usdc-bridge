@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border: 1px solid rgba(var(--foreground-rgb), 0.5);
+  transition: all 0.25s ease-out;
 
   input {
     background-color: transparent;

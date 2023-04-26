@@ -1,7 +1,6 @@
 @import "@/styles/rules.scss";
 
 .chainContainer {
-  width: 100%;
   height: 5vh;
   border-radius: 4px;
   background-color: rgb(var(--background-end-rgb));
@@ -12,7 +11,7 @@
   position: relative;
   user-select: none;
 
-  border: 1px solid rgba(var(--foreground-rgb), 0.5);
+  border: 1px solid rgba(var(--foreground-rgb), 0.4);
 
   .chainImg {
     user-select: none;
@@ -54,7 +53,7 @@
     top: calc(5vh + 2px);
     user-select: none;
 
-    border: 1px solid rgba(var(--foreground-rgb), 0.5);
+    border: 1px solid rgba(var(--foreground-rgb), 0.4);
 
     display: flex;
     align-items: center;

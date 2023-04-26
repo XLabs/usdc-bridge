@@ -21,6 +21,23 @@ export const USDC_ADDRESSES_MAINNET: { [key in ChainId]?: `0x${string}` } = {
 export const AMOUNT_DECIMALS = 6;
 export const USDC_DECIMALS = 6;
 
+export const ETH_EXPLORER = isMainnet
+  ? "https://etherscan.io/tx/"
+  : "https://goerli.etherscan.io/tx/";
+export const AVAX_EXPLORER = isMainnet
+  ? "https://snowtrace.io/tx/"
+  : "https://testnet.snowtrace.io/tx/";
+
+export const getRelayFeedbackUrl = () => {
+  if (typeof window !== "undefined") {
+    if (window.location.href.includes("localhost")) {
+      return "https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.dev.stable.io/v1/relays?txHash=";
+    } else {
+      return "https://relayer.dev.stable.io/v1/relays?txHash=";
+    }
+  }
+};
+
 const ETH_NETWORK_CHAIN_ID_TESTNET = 5; // https://chainlist.org/chain/5?testnets=true
 const AVAX_NETWORK_CHAIN_ID_TESTNET = 43113; // https://chainlist.org/chain/43113?testnets=true
 const ETH_NETWORK_CHAIN_ID_MAINNET = 1; // https://chainlist.org/chain/1

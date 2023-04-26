@@ -92,6 +92,10 @@
       margin-left: 10vw;
       margin-right: 10vw;
       text-align: center;
+
+      .CCTP {
+        font-weight: 700;
+      }
     }
 
     .container {
@@ -122,18 +126,20 @@
         height: 100%;
         cursor: not-allowed;
         z-index: 15;
-        background: rgba(var(--foreground-rgb), 0.2);
+        background: rgba(var(--foreground-rgb), 0.1);
       }
 
       .fromToContainer {
         display: flex;
         flex-direction: row;
+        justify-content: space-between;
+        gap: 16px;
       }
 
       .chain {
         display: flex;
         flex-direction: column;
-        width: calc(50% - 15px);
+        width: 3000px;
         font-weight: 500;
       }
 
@@ -151,8 +157,9 @@
       }
 
       .separator {
-        width: 80%;
-        margin-left: 10%;
+        width: 98%;
+        margin-left: 1%;
+        margin-right: 1%;
         margin-top: 3vh;
         margin-bottom: 3vh;
 
@@ -186,7 +193,7 @@
 
         &.btnLoading {
           display: inline-block;
-          padding: 12px 24px;
+          padding: 6px 24px;
           font-size: 16px;
           font-weight: bold;
           text-align: center;
@@ -204,6 +211,25 @@
               var(--foreground-rgb) dd,
               var(--foreground-rgb)
             );
+          }
+
+          &.txLoading::before {
+            animation: loading 1560s forwards !important; // 13 minutes (100% its twice the animation)
+
+            background-image: linear-gradient(
+              90deg,
+              rgba(var(--background-start-rgb), 0.25),
+              rgba(var(--background-start-rgb), 0.35),
+              rgba(var(--background-start-rgb), 0.25)
+            );
+            @include dark {
+              background-image: linear-gradient(
+                90deg,
+                rgba(var(--background-start-rgb), 0.3),
+                rgba(var(--background-start-rgb), 0.35),
+                rgba(var(--background-start-rgb), 0.3)
+              );
+            }
           }
 
           &::before {
@@ -244,15 +270,28 @@
     .poweredBy {
       display: flex;
       flex-direction: row;
-      cursor: pointer;
       justify-content: center;
       align-items: center;
       margin-top: 1vh;
       gap: 8px;
       padding-bottom: 40px;
 
+      transform: scale(0.8);
+      @include tablet {
+        transform: scale(1);
+      }
+
+      a {
+        height: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
       span {
         font-size: 18px;
+        white-space: nowrap;
       }
 
       img {

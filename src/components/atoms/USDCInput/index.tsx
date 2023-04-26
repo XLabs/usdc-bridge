@@ -1,4 +1,4 @@
-import { ChangeEvent, useRef } from "react";
+import { ChangeEvent, useRef, useState } from "react";
 import styles from "./USDCInput.module.scss";
 import Image from "next/image";
 import { Manrope } from "next/font/google";
@@ -37,13 +37,24 @@ const USDCInput = ({ value, setValue, maxDecimals }: Props) => {
 
   const amountInputRef = useRef<HTMLInputElement>(null);
 
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
-    <div className={styles.usdcInputContainer}>
+    <div
+      className={styles.usdcInputContainer}
+      style={{
+        border: isFocused
+          ? "1px solid rgba(var(--foreground-rgb), 1)"
+          : "1px solid rgba(var(--foreground-rgb), 0.35)",
+      }}
+    >
       <input
         className={manrope.className}
         value={value}
         onChange={handleAmountChange}
         ref={amountInputRef}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         onClick={() => value === "0" && amountInputRef.current?.select()}
       />
       <div className={styles.usdcText}>

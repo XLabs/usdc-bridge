@@ -26,10 +26,7 @@ export async function sleep(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
-export async function getCircleAttestation(
-  messageHash: ethers.BytesLike,
-  timeout: number = 3500
-) {
+export async function getCircleAttestation(messageHash: ethers.BytesLike) {
   while (true) {
     // get the post
     const response = await axios
@@ -53,7 +50,7 @@ export async function getCircleAttestation(
       return response;
     }
 
-    await sleep(timeout);
+    await sleep(3500);
   }
 }
 

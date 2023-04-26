@@ -18,6 +18,9 @@ import {
   USDC_RELAYER_TESTNET,
   USDC_WH_EMITTER,
   WEBAPP_URL,
+  ETH_EXPLORER,
+  AVAX_EXPLORER,
+  getRelayFeedbackUrl,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
@@ -44,10 +47,12 @@ import { Contract, ethers, Signer } from "ethers";
 import { CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
-import HeadAndMetadata from "@/components/atoms/HeadAndMetadata";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
 import { handleCircleMessageInLogs } from "@/utils/circle";
 import HeaderButtons from "@/components/atoms/HeaderButtons";
+import axios, { AxiosResponse } from "axios";
+import Tooltip from "@/components/atoms/Tooltip";
+import Loader from "@/components/atoms/Loader";
 
 const manrope = Manrope({ subsets: ["latin"] });
 const chainList = isMainnet ? [avalanche, mainnet] : [avalancheFuji, goerli];
@@ -80,29 +85,37 @@ export default function Home() {
     }),
   });
   const { disconnect } = useDisconnect();
+
+  const [switchingNetwork, setSwitchingNetwork] = useState(false);
   const { switchNetwork } = useSwitchNetwork({
     onSuccess: () => {
-      setBlockedInteraction(false);
+      setSwitchingNetwork(false);
     },
     onError: () => {
+      changeSource(true);
       errorToast(
         <div>
           <p>Error changing network.</p>
-          <p>(Did you rejected the network change?)</p>
+          <p>(Did you reject the network change?)</p>
           <p>(Do you have any pending action on your wallet?)</p>
-          <p>Refresh the page to try again.</p>
         </div>,
-        12000
+        10000
       );
-      setBlockedInteraction(true);
     },
   });
 
-  const changeSource = () => {
-    if (isConnected) setBlockedInteraction(true);
+  const changeSource = (failedSwitch = false) => {
+    if (isConnected) {
+      setSwitchingNetwork(true);
+    }
 
-    switchNetwork?.(getEvmChainId(destinationChainId));
     setSource(destination);
+
+    if (failedSwitch) {
+      setSwitchingNetwork(false);
+    } else {
+      switchNetwork?.(getEvmChainId(destinationChainId));
+    }
   };
 
   useEffect(() => {
@@ -337,13 +350,6 @@ export default function Home() {
 
   // ACTUAL TOKEN TRANSFERS
   const [isTransfering, setIsTransfering] = useState(false);
-  const [sourceTxHash, setSourceTxHash] = useState("");
-  const [sourceTxConfirmed, setSourceTxConfirmed] = useState(false);
-  const [transferInfo, setTransferInfo] = useState<null | {
-    VAA: string | null;
-    circleBridgeMessage: string;
-    circleAttestation: string;
-  }>(null);
 
   const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
 
@@ -381,7 +387,7 @@ export default function Home() {
       signer
     );
 
-    setBlockedInteraction(true);
+    infoToast("Starting transaction...");
     setIsTransfering(true);
 
     try {
@@ -393,41 +399,127 @@ export default function Home() {
         hexZeroPad(signerAddress, 32)
       );
 
-      setSourceTxHash(tx.hash);
-      infoToast(`(1/3) Transaction hash: ${tx.hash}`);
+      infoToast(`(1/4) Transaction hash: ${tx.hash}`);
       console.log("tx hash:", tx.hash);
 
-      const receipt = await tx.wait();
+      // TOAST FEEDBACK CONTRACT
+      let processing = true;
+      const processingSourceFeedback = () => {
+        if (processing) {
+          infoToast("Waiting for the contract to finish processing");
+          processingSourceFeedbackTimeout = setTimeout(
+            processingSourceFeedback,
+            15000
+          );
+        }
+      };
+      let processingSourceFeedbackTimeout = setTimeout(
+        processingSourceFeedback,
+        15000
+      );
 
-      console.log("receipt here!", receipt);
+      const receipt = await tx.wait();
+      processing = false;
+      clearTimeout(processingSourceFeedbackTimeout);
+
+      console.log("receipt", receipt);
 
       if (!receipt) {
         throw new Error("Invalid receipt");
       }
 
-      setSourceTxConfirmed(true);
-      infoToast("(2/3) Source transaction confirmed");
+      infoToast(
+        <a
+          target="_blank"
+          href={
+            source === "AVAX"
+              ? `${AVAX_EXPLORER}${tx.hash}`
+              : `${ETH_EXPLORER}${tx.hash}`
+          }
+        >
+          <p>(2/4) Source transaction confirmed</p>
+          <p>Click here to see it on the Explorer</p>
+        </a>,
+        12000
+      );
+
+      // TOAST FEEDBACK CIRCLE
+      processing = true;
+      const processCircleFeedback = () => {
+        if (processing) {
+          infoToast("Still processing: Waiting for enough block confirmations");
+          processFeedbackTimeout = setTimeout(processCircleFeedback, 15000);
+        }
+      };
+      let processFeedbackTimeout = setTimeout(processCircleFeedback, 15000);
 
       // find circle message
       const [circleBridgeMessage, circleAttestation] =
         await handleCircleMessageInLogs(receipt.logs, sourceEmitter);
 
+      processing = false;
+      clearTimeout(processFeedbackTimeout);
+      infoToast("(3/4) Circle attestation done");
+
       if (circleBridgeMessage === null || circleAttestation === null) {
         throw new Error(`Error parsing receipt for ${tx.hash}`);
       }
-      // Circle message found
-      successToast("(3/3) Your transfer was sent successfully!");
-      await refetch();
+
+      const relayResponse = async () => {
+        return await axios
+          // TODO: CHANGE TO MAINNET RELAYER URL
+          .get(`${getRelayFeedbackUrl()}${tx.hash}`)
+          .then((response: any) => {
+            return response;
+          })
+          .catch((error) => {
+            console.log("Error getting relayer info for", tx.hash);
+            console.error(error);
+            return "ERRORED";
+          });
+      };
+
+      // TOAST FEEDBACK RELAYER
+      const waitForRelayRedeem = async () => {
+        const response = await relayResponse();
+        console.log("response", response);
+
+        if (response.data?.data?.status === "redeemed") {
+          const destinationTxHash = response.data.data.to.txHash;
+
+          successToast(
+            <a
+              target="_blank"
+              href={
+                destination === "AVAX"
+                  ? `${AVAX_EXPLORER}${destinationTxHash}`
+                  : `${ETH_EXPLORER}${destinationTxHash}`
+              }
+            >
+              <p>(4/4) Your transfer was sent successfully!</p>
+              <p>Click here to see the transaction on your destination</p>
+            </a>,
+            11000
+          );
+        } else if (response !== "ERRORED") {
+          setTimeout(() => {
+            waitForRelayRedeem();
+          }, 12000);
+        }
+      };
+      waitForRelayRedeem();
     } catch (e) {
       console.error(e);
       errorToast(
         "Error: Something went wrong. Check the console for more info"
       );
     } finally {
-      setBlockedInteraction(false);
       setIsTransfering(false);
+      await refetch();
     }
   }, [
+    source,
+    destination,
     refetch,
     amount,
     signer,
@@ -446,6 +538,24 @@ export default function Home() {
 
   const mainBtnLoading =
     isProcessingApproval || isTransfering || isFetchingAllowance;
+
+  useEffect(() => {
+    if (
+      isProcessingApproval ||
+      isTransfering ||
+      isFetchingAllowance ||
+      switchingNetwork
+    ) {
+      setBlockedInteraction(true);
+    } else {
+      setBlockedInteraction(false);
+    }
+  }, [
+    switchingNetwork,
+    isProcessingApproval,
+    isTransfering,
+    isFetchingAllowance,
+  ]);
 
   return (
     <>
@@ -480,8 +590,19 @@ export default function Home() {
             <span>USDC Bridge</span>
           </h2>
           <h3 className={styles.subtitle}>
-            The official way to bridge and send native USDC between Ethereum and
-            Avalanche
+            <span>
+              Bridge and send native USDC between Ethereum and Avalanche through
+              the official{" "}
+            </span>
+            <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
+              <a
+                target="__blank"
+                href="https://developers.circle.com/stablecoin/docs"
+                className={styles.CCTP}
+              >
+                CCTP
+              </a>
+            </Tooltip>
           </h3>
 
           <div className={styles.container}>
@@ -491,18 +612,18 @@ export default function Home() {
                 <div className={styles.boxText}>From</div>
                 <Chain
                   source={source}
-                  changeSource={changeSource}
+                  changeSource={() => changeSource()}
                   initial="AVAX"
                 />
               </div>
 
-              <ExchangeChains onClick={changeSource} source={source} />
+              <ExchangeChains onClick={() => changeSource()} source={source} />
 
               <div className={styles.chain}>
                 <div className={styles.boxText}>To</div>
                 <Chain
                   source={source}
-                  changeSource={changeSource}
+                  changeSource={() => changeSource()}
                   initial="ETH"
                 />
               </div>
@@ -548,35 +669,64 @@ export default function Home() {
 
             <button
               onClick={() => !mainBtnLoading && handleBoxWallet()}
-              className={`${mainBtnLoading ? styles.btnLoading : ""}`}
+              className={`${
+                mainBtnLoading
+                  ? `${styles.btnLoading} ${
+                      isTransfering ? styles.txLoading : ""
+                    }`
+                  : ""
+              }`}
             >
-              {mainBtnLoading ? "..." : boxWalletTxt}
+              {mainBtnLoading && <Loader size="m" />}
+              {!mainBtnLoading && boxWalletTxt}
             </button>
           </div>
 
-          <a
-            href="https://developers.circle.com/stablecoin/docs/cctp-faq"
-            className={styles.poweredBy}
-            target="_blank"
-          >
+          <div className={styles.poweredBy}>
             <span>Powered by </span>
-            <Image
-              alt="Powered by Circle"
-              src={"/circle.png"}
-              width={120}
-              height={30}
-            />
-          </a>
+            <a
+              href="https://developers.circle.com/stablecoin/docs/cctp-faq"
+              target="_blank"
+            >
+              <Image
+                alt="Powered by Circle"
+                src={"/circle.png"}
+                width={120}
+                height={30}
+              />
+            </a>
+            <span> & </span>
+            <a href="https://wormhole.com/" target="_blank">
+              <Image
+                alt="Powered by Wormhole"
+                src={"/wormhole.png"}
+                width={200}
+                height={45}
+              />
+            </a>
+          </div>
         </div>
         <footer>
           <a
             className={styles.tweet}
-            href="https://twitter.com/stable_io"
+            href="https://twitter.com/wormholecrypto"
             target="_blank"
           >
             <Image
               alt="Twitter logo"
               src={"/twitter.png"}
+              width={20}
+              height={20}
+            />
+          </a>
+          <a
+            className={styles.tweet}
+            href="https://discord.gg/wormholecrypto"
+            target="_blank"
+          >
+            <Image
+              alt="Discord logo"
+              src={"/discord.svg"}
               width={20}
               height={20}
             />
