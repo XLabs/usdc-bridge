@@ -1,18 +1,20 @@
-import { USDC_DECIMALS } from "@/constants";
+import { USDC_DECIMALS, getEvmChainId } from "@/constants";
 import { approveEth, getAllowanceEth } from "@certusone/wormhole-sdk";
-import { ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
 import { useEffect, useMemo, useState } from "react";
 import { errorToast, infoToast, successToast } from "./toast";
 
 export default function useAllowance(
   signer: ethers.Signer,
-  evmChainId: 1 | 5 | 43113 | 43114 | undefined,
+  sourceChainId: 2 | 6,
+  destinationChainId: 2 | 6,
   tokenAddress: string,
   transferAmount: string,
-  overrideAddress: string
+  sourceRelayContract: string
 ) {
   const [allowance, setAllowance] = useState<string | null>(null);
+  const [transactionFee, setTransactionFee] = useState("");
   const [isFetchingAllowance, setIsFetchingAllowance] = useState(false);
   const [isProcessingApproval, setIsApproving] = useState<boolean>(false);
 
@@ -22,10 +24,61 @@ export default function useAllowance(
   useEffect(() => {
     let cancelled = false;
 
-    if (tokenAddress && signer && overrideAddress && !isProcessingApproval) {
+    if (
+      tokenAddress &&
+      signer &&
+      sourceRelayContract &&
+      !isProcessingApproval
+    ) {
       setIsFetchingAllowance(true);
 
-      getAllowanceEth(overrideAddress, tokenAddress, signer).then(
+      // Getting transaction fee
+      const contract = new Contract(
+        sourceRelayContract,
+        [
+          {
+            inputs: [
+              {
+                internalType: "uint16",
+                name: "chainId_",
+                type: "uint16",
+              },
+              {
+                internalType: "address",
+                name: "token",
+                type: "address",
+              },
+            ],
+            name: "relayerFee",
+            outputs: [
+              {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
+              },
+            ],
+            stateMutability: "view",
+            type: "function",
+          },
+        ],
+        signer
+      );
+
+      (async () => {
+        const getFeeTx: BigNumber = await contract.relayerFee(
+          destinationChainId,
+          tokenAddress
+        );
+
+        if (!cancelled) {
+          const getFeeResult = formatUnits(getFeeTx, USDC_DECIMALS);
+          setTransactionFee(getFeeTx.isZero() ? "" : getFeeResult);
+        }
+      })();
+      // ---
+
+      // Getting approved amount
+      getAllowanceEth(sourceRelayContract, tokenAddress, signer).then(
         (result) => {
           if (!cancelled) {
             setIsFetchingAllowance(false);
@@ -45,7 +98,14 @@ export default function useAllowance(
     return () => {
       cancelled = true;
     };
-  }, [evmChainId, tokenAddress, isProcessingApproval, overrideAddress, signer]);
+  }, [
+    destinationChainId,
+    sourceChainId,
+    tokenAddress,
+    isProcessingApproval,
+    sourceRelayContract,
+    signer,
+  ]);
 
   const approveAmount: (amount: string) => void = useMemo(() => {
     return (amount: string) => {
@@ -61,7 +121,7 @@ export default function useAllowance(
         }
       }, 14000);
 
-      approveEth(overrideAddress!, tokenAddress!, signer, usdcWei, {})
+      approveEth(sourceRelayContract!, tokenAddress!, signer, usdcWei, {})
         .then(
           (_fullfiled) => {
             successToast("You approved a spending limit successfully!");
@@ -84,20 +144,22 @@ export default function useAllowance(
           setIsApproving(false);
         });
     };
-  }, [overrideAddress, signer, tokenAddress]);
+  }, [sourceRelayContract, signer, tokenAddress]);
 
   return useMemo(
     () => ({
+      approveAmount,
       isFetchingAllowance,
       isProcessingApproval,
       sufficientAllowance,
-      approveAmount,
+      transactionFee,
     }),
     [
-      isFetchingAllowance,
-      sufficientAllowance,
       approveAmount,
+      isFetchingAllowance,
       isProcessingApproval,
+      sufficientAllowance,
+      transactionFee,
     ]
   );
 }

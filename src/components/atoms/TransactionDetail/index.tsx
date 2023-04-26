@@ -6,6 +6,7 @@ type Props = {
   estimatedGas: string;
   destination: IChain;
   destinationGas: number;
+  transactionFee: string;
 };
 
 const TransactionDetail = ({
@@ -13,6 +14,7 @@ const TransactionDetail = ({
   estimatedGas,
   destination,
   destinationGas,
+  transactionFee,
 }: Props) => {
   const USDCamount = (+amount - +destinationGas).toFixed(5);
 
@@ -27,8 +29,10 @@ const TransactionDetail = ({
         <span>{estimatedGas ? `≈${estimatedGas} ${destination}` : "..."}</span>
       </div>
       <div className={styles.infoLine}>
-        <span>Fee</span>
-        <span>0.00</span>
+        <span>Gas Fee</span>
+        <span>
+          {transactionFee === "" ? "0.00" : "≈" + transactionFee} USDC
+        </span>
       </div>
     </div>
   );

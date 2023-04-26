@@ -138,8 +138,15 @@ export default function Home() {
     } else {
       // TRANSFER
       if (sufficientAllowance) {
-        console.log("TRANSFER");
-        handleTransferClick();
+        if (+transactionFee > +amount - +destinationGas) {
+          infoToast(
+            `The fee of this transaction is higher than the amount you are trying to receive. Get some ${destination} on your address before sending this transaction`,
+            8000
+          );
+        } else {
+          console.log("TRANSFER");
+          handleTransferClick();
+        }
       }
       // APPROVE
       else {
@@ -241,9 +248,11 @@ export default function Home() {
     isProcessingApproval,
     approveAmount,
     sufficientAllowance,
+    transactionFee,
   } = useAllowance(
     signer as Signer,
-    getEvmChainId(sourceChainId),
+    sourceChainId,
+    destinationChainId,
     sourceAsset!,
     amount,
     sourceRelayContract!
@@ -448,10 +457,10 @@ export default function Home() {
       const processCircleFeedback = () => {
         if (processing) {
           infoToast("Still processing: Waiting for enough block confirmations");
-          processFeedbackTimeout = setTimeout(processCircleFeedback, 15000);
+          processFeedbackTimeout = setTimeout(processCircleFeedback, 22500);
         }
       };
-      let processFeedbackTimeout = setTimeout(processCircleFeedback, 15000);
+      let processFeedbackTimeout = setTimeout(processCircleFeedback, 22500);
 
       // find circle message
       const [circleBridgeMessage, circleAttestation] =
@@ -505,11 +514,14 @@ export default function Home() {
           );
         } else if (response !== "ERRORED") {
           attempts++;
-          infoToast("Waiting for relay to happen...");
+          infoToast("Waiting for the relay to happen...");
           setTimeout(() => {
             waitForRelayRedeem();
           }, 12000);
         } else {
+          infoToast(
+            "We were not able to get the transaction relay status. It should arrive shortly!"
+          );
           setIsTransfering(false);
         }
       };
@@ -671,6 +683,7 @@ export default function Home() {
               estimatedGas={stringifiedEstimatedGas}
               destinationGas={destinationGas}
               destination={destination}
+              transactionFee={transactionFee}
             />
 
             <button
