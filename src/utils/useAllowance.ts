@@ -16,6 +16,8 @@ export default function useAllowance(
   const [isFetchingAllowance, setIsFetchingAllowance] = useState(false);
   const [isProcessingApproval, setIsApproving] = useState<boolean>(false);
 
+  console.log("allowance", allowance);
+
   const sufficientAllowance =
     allowance && transferAmount && +allowance >= +transferAmount;
 
@@ -65,7 +67,9 @@ export default function useAllowance(
           },
           (rejected) => {
             console.error(rejected);
-            errorToast("Error: user rejected the approval transaction");
+            errorToast(
+              "Error: Something went wrong. (Did you rejected the spending limit?)"
+            );
           }
         )
         .catch((err) => {

@@ -260,15 +260,15 @@ export default function Home() {
     // null check
     if (!destinationRelayContract || !destinationAsset) return;
 
-    const targetEVMChain = getEvmChainId(destinationChainId);
-    if (!targetEVMChain) return;
+    const destinationEVMChain = getEvmChainId(destinationChainId);
+    if (!destinationEVMChain) return;
 
-    const targetRPC = isMainnet
-      ? RPCS_MAINNET[targetEVMChain]
-      : RPCS_TESTNET[targetEVMChain];
-    if (!targetRPC) return;
+    const destinationRPC = isMainnet
+      ? RPCS_MAINNET[destinationEVMChain]
+      : RPCS_TESTNET[destinationEVMChain];
+    if (!destinationRPC) return;
 
-    const provider = new ethers.providers.StaticJsonRpcProvider(targetRPC);
+    const provider = new ethers.providers.StaticJsonRpcProvider(destinationRPC);
     let cancelled = false;
     (async () => {
       const contract = new Contract(
@@ -358,8 +358,8 @@ export default function Home() {
     const sourceEmitter = CIRCLE_EMITTER_ADDRESSES[sourceChainId];
     if (!sourceEmitter) return;
 
-    const targetDomain = CIRCLE_DOMAINS[destinationChainId];
-    if (targetDomain === undefined) return;
+    const destinationDomain = CIRCLE_DOMAINS[destinationChainId];
+    if (destinationDomain === undefined) return;
 
     const transferAmountParsed = parseUnits(amount, USDC_DECIMALS);
     if (!transferAmountParsed) return;

@@ -1,12 +1,20 @@
+import { isMainnet } from "@/constants";
 import axios, { AxiosResponse } from "axios";
 import { ethers } from "ethers";
+
+const CIRCLE_ATTESTATION = isMainnet
+  ? "https://iris-api.circle.com/attestations/"
+  : "https://iris-api-sandbox.circle.com/attestations/";
 
 export const findCircleMessageInLogs = (
   logs: ethers.providers.Log[],
   circleEmitterAddress: string
 ): string | null => {
   for (const log of logs) {
-    if (log.address === circleEmitterAddress) {
+    if (
+      log.address == circleEmitterAddress ||
+      Number(log.address) == Number(circleEmitterAddress)
+    ) {
       const messageSentIface = new ethers.utils.Interface([
         "event MessageSent(bytes message)",
       ]);
@@ -28,7 +36,7 @@ export async function getCircleAttestation(
   while (true) {
     // get the post
     const response = await axios
-      .get(`https://iris-api-sandbox.circle.com/attestations/${messageHash}`)
+      .get(`${CIRCLE_ATTESTATION}${messageHash}`)
       .catch((reason) => {
         return null;
       })
