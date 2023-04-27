@@ -29,7 +29,7 @@ const TransactionDetail = ({
         <span>{estimatedGas ? `≈${estimatedGas} ${destination}` : "..."}</span>
       </div>
       <div className={styles.infoLine}>
-        <span>Relay Fee</span>
+        <span>Relay Cost</span>
         <span>
           {transactionFee === "" ? "0.00" : "≈" + transactionFee} USDC
         </span>

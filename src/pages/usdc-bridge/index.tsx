@@ -576,185 +576,183 @@ export default function Home() {
   ]);
 
   return (
-    <>
-      <main className={`${styles.main} ${manrope.className}`}>
-        {/* <Splash /> */}
-        <header className={styles.header}>
-          <div className={styles.logo}>
-            <Image
-              alt="stable logo"
-              width={120}
-              height={30}
-              src={"/stable.png"}
-            />
-            <a href={`${WEBAPP_URL}usdc-bridge`}>USDC</a>
-          </div>
-          <div className={styles.headerInteractions}>
-            <DarkModeSwitch />
-            <HeaderButtons
-              isConnected={isConnected}
-              disconnect={disconnect}
-              connect={connect}
-              sourceChainId={sourceChainId}
-              headerWalletTxt={headerWalletTxt}
-              blockedInteractions={blockedInteractions}
-            />
-          </div>
-        </header>
+    <main className={`${styles.main} ${manrope.className}`}>
+      {/* <Splash /> */}
+      <header className={styles.header}>
+        <div className={styles.logo}>
+          <Image
+            alt="stable logo"
+            width={120}
+            height={30}
+            src={"/stable.png"}
+          />
+          <a href={`${WEBAPP_URL}usdc-bridge`}>USDC</a>
+        </div>
+        <div className={styles.headerInteractions}>
+          <DarkModeSwitch />
+          <HeaderButtons
+            isConnected={isConnected}
+            disconnect={disconnect}
+            connect={connect}
+            sourceChainId={sourceChainId}
+            headerWalletTxt={headerWalletTxt}
+            blockedInteractions={blockedInteractions}
+          />
+        </div>
+      </header>
 
-        <div className={styles.center}>
-          <h2 className={styles.title}>
-            <Image alt="USDC icon" width={42} height={42} src={"/usdc.png"} />
-            <span>USDC Bridge</span>
-          </h2>
-          <h3 className={styles.subtitle}>
-            <span>
-              Bridge and send native USDC between Ethereum and Avalanche through
-              the official{" "}
-            </span>
-            <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
-              <a
-                target="__blank"
-                href="https://developers.circle.com/stablecoin/docs"
-                className={styles.CCTP}
-              >
-                CCTP
-              </a>
-            </Tooltip>
-          </h3>
+      <div className={styles.center}>
+        <h2 className={styles.title}>
+          <Image alt="USDC icon" width={42} height={42} src={"/usdc.png"} />
+          <span>USDC Bridge</span>
+        </h2>
+        <h3 className={styles.subtitle}>
+          <span>
+            Bridge and send native USDC between Ethereum and Avalanche through
+            the official{" "}
+          </span>
+          <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
+            <a
+              target="__blank"
+              href="https://developers.circle.com/stablecoin/docs"
+              className={styles.CCTP}
+            >
+              CCTP
+            </a>
+          </Tooltip>
+        </h3>
 
-          <div className={styles.container}>
-            {blockedInteractions && <div className={styles.blocked} />}
-            <div className={styles.fromToContainer}>
-              <div className={styles.chain}>
-                <div className={styles.boxText}>From</div>
-                <Chain
-                  source={source}
-                  changeSource={() => changeSource()}
-                  initial="AVAX"
-                />
-              </div>
-
-              <ExchangeChains onClick={() => changeSource()} source={source} />
-
-              <div className={styles.chain}>
-                <div className={styles.boxText}>To</div>
-                <Chain
-                  source={source}
-                  changeSource={() => changeSource()}
-                  initial="ETH"
-                />
-              </div>
+        <div className={styles.container}>
+          {blockedInteractions && <div className={styles.blocked} />}
+          <div className={styles.fromToContainer}>
+            <div className={styles.chain}>
+              <div className={styles.boxText}>From</div>
+              <Chain
+                source={source}
+                changeSource={() => changeSource()}
+                initial="AVAX"
+              />
             </div>
 
-            <div className={styles.boxText}>Amount</div>
-            <USDCInput
-              value={amount}
-              setValue={changeAmount}
-              maxDecimals={AMOUNT_DECIMALS}
-            />
+            <ExchangeChains onClick={() => changeSource()} source={source} />
 
-            {balance && (
-              <div className={styles.balance}>
-                <span className={styles.balanceTxt}>Balance {balance}</span>
-                <span
-                  onClick={() => changeAmount(balance)}
-                  className={styles.maxTxt}
-                >
-                  MAX
-                </span>
-              </div>
-            )}
-
-            <DestinationGas
-              amount={amount}
-              gas={destinationGas}
-              onChange={changeDestinationGas}
-              destination={destination}
-              maxDestinationGas={maxDestinationGas}
-              estimatedGas={stringifiedEstimatedGas}
-              sliderPercentage={sliderPercentage}
-            />
-
-            <div className={styles.separator} />
-
-            <TransactionDetail
-              amount={amount}
-              estimatedGas={stringifiedEstimatedGas}
-              destinationGas={destinationGas}
-              destination={destination}
-              transactionFee={transactionFee}
-            />
-
-            <button
-              onClick={() => !mainBtnLoading && handleBoxWallet()}
-              className={`${
-                mainBtnLoading
-                  ? `${styles.btnLoading} ${
-                      isTransfering ? styles.txLoading : ""
-                    }`
-                  : ""
-              }`}
-            >
-              {mainBtnLoading && <Loader size="m" />}
-              {!mainBtnLoading && boxWalletTxt}
-            </button>
+            <div className={styles.chain}>
+              <div className={styles.boxText}>To</div>
+              <Chain
+                source={source}
+                changeSource={() => changeSource()}
+                initial="ETH"
+              />
+            </div>
           </div>
 
-          <div className={styles.poweredBy}>
-            <span>Powered by </span>
-            <a
-              href="https://developers.circle.com/stablecoin/docs/cctp-faq"
-              target="_blank"
-            >
-              <Image
-                alt="Powered by Circle"
-                src={"/circle.png"}
-                width={120}
-                height={30}
-              />
-            </a>
-            <span> & </span>
-            <a href="https://wormhole.com/" target="_blank">
-              <Image
-                alt="Powered by Wormhole"
-                src={"/wormhole.png"}
-                width={200}
-                height={45}
-              />
-            </a>
-          </div>
+          <div className={styles.boxText}>Amount</div>
+          <USDCInput
+            value={amount}
+            setValue={changeAmount}
+            maxDecimals={AMOUNT_DECIMALS}
+          />
+
+          {balance && (
+            <div className={styles.balance}>
+              <span className={styles.balanceTxt}>Balance {balance}</span>
+              <span
+                onClick={() => changeAmount(balance)}
+                className={styles.maxTxt}
+              >
+                MAX
+              </span>
+            </div>
+          )}
+
+          <DestinationGas
+            amount={amount}
+            gas={destinationGas}
+            onChange={changeDestinationGas}
+            destination={destination}
+            maxDestinationGas={maxDestinationGas}
+            estimatedGas={stringifiedEstimatedGas}
+            sliderPercentage={sliderPercentage}
+          />
+
+          <div className={styles.separator} />
+
+          <TransactionDetail
+            amount={amount}
+            estimatedGas={stringifiedEstimatedGas}
+            destinationGas={destinationGas}
+            destination={destination}
+            transactionFee={transactionFee}
+          />
+
+          <button
+            onClick={() => !mainBtnLoading && handleBoxWallet()}
+            className={`${
+              mainBtnLoading
+                ? `${styles.btnLoading} ${
+                    isTransfering ? styles.txLoading : ""
+                  }`
+                : ""
+            }`}
+          >
+            {mainBtnLoading && <Loader size="m" />}
+            {!mainBtnLoading && boxWalletTxt}
+          </button>
         </div>
-        <footer>
+
+        <div className={styles.poweredBy}>
+          <span>Powered by </span>
           <a
-            className={styles.tweet}
-            href="https://twitter.com/wormholecrypto"
+            href="https://developers.circle.com/stablecoin/docs/cctp-faq"
             target="_blank"
           >
             <Image
-              alt="Twitter logo"
-              src={"/twitter.png"}
-              width={20}
-              height={20}
+              alt="Powered by Circle"
+              src={"/circle.png"}
+              width={120}
+              height={30}
             />
           </a>
-          <a
-            className={styles.tweet}
-            href="https://discord.gg/wormholecrypto"
-            target="_blank"
-          >
+          <span> & </span>
+          <a href="https://wormhole.com/" target="_blank">
             <Image
-              alt="Discord logo"
-              src={"/discord.svg"}
-              width={20}
-              height={20}
+              alt="Powered by Wormhole"
+              src={"/wormhole.png"}
+              width={200}
+              height={45}
             />
           </a>
-          <a href="mailto:hello@stable.io" target="_blank">
-            Contact Us
-          </a>
-        </footer>
-      </main>
-    </>
+        </div>
+      </div>
+      <footer>
+        <a
+          className={styles.tweet}
+          href="https://twitter.com/wormholecrypto"
+          target="_blank"
+        >
+          <Image
+            alt="Twitter logo"
+            src={"/twitter.png"}
+            width={20}
+            height={20}
+          />
+        </a>
+        <a
+          className={styles.tweet}
+          href="https://discord.gg/wormholecrypto"
+          target="_blank"
+        >
+          <Image
+            alt="Discord logo"
+            src={"/discord.svg"}
+            width={20}
+            height={20}
+          />
+        </a>
+        <a href="mailto:hello@stable.io" target="_blank">
+          Contact Us
+        </a>
+      </footer>
+    </main>
   );
 }
