@@ -50,7 +50,7 @@ import useAllowance from "@/utils/useAllowance";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
 import { handleCircleMessageInLogs } from "@/utils/circle";
 import HeaderButtons from "@/components/atoms/HeaderButtons";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import Tooltip from "@/components/atoms/Tooltip";
 import Loader from "@/components/atoms/Loader";
 
@@ -104,6 +104,15 @@ export default function Home() {
     },
   });
 
+  const { data, refetch } = useBalance({
+    chainId: getEvmChainId(sourceChainId),
+    address: address,
+    token: isMainnet
+      ? USDC_ADDRESSES_MAINNET[sourceChainId]
+      : USDC_ADDRESSES_TESTNET[sourceChainId],
+  });
+
+  // APP STATE HANDLING
   const changeSource = (failedSwitch = false) => {
     if (isConnected) {
       setSwitchingNetwork(true);
@@ -123,14 +132,6 @@ export default function Home() {
     changeDestinationGas(0);
   }, [source]); // eslint-disable-line
 
-  const { data, refetch } = useBalance({
-    chainId: getEvmChainId(sourceChainId),
-    address: address,
-    token: isMainnet
-      ? USDC_ADDRESSES_MAINNET[sourceChainId]
-      : USDC_ADDRESSES_TESTNET[sourceChainId],
-  });
-
   // main button function:
   const handleBoxWallet = () => {
     if (!isConnected) {
@@ -140,17 +141,15 @@ export default function Home() {
       if (sufficientAllowance) {
         if (+transactionFee > +amount - +destinationGas) {
           infoToast(
-            `The fee of this transaction is higher than the amount you are trying to receive. Get some ${destination} on your address before sending this transaction`,
+            "The fee of this transaction is higher than the amount you are trying to receive.",
             8000
           );
         } else {
-          console.log("TRANSFER");
           handleTransferClick();
         }
       }
       // APPROVE
       else {
-        console.log("APPROVE");
         approveAmount(amount);
       }
     }
@@ -167,7 +166,6 @@ export default function Home() {
     }
   }, [balance]); // eslint-disable-line
 
-  // MORE AMOUNT STATES
   const [destinationGas, setDestinationGas] = useState(0);
   const [amount, setAmount] = useState("0");
 
@@ -477,7 +475,6 @@ export default function Home() {
       let attempts = 0;
       const relayResponse = async () => {
         return await axios
-          // TODO: CHANGE TO MAINNET RELAYER URL IF EXIST
           .get(`${getRelayFeedbackUrl(attempts)}${tx.hash}`)
           .then((response: any) => {
             return response;
