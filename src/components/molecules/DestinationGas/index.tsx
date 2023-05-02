@@ -5,7 +5,6 @@ import Loader from "@/components/atoms/Loader";
 import { IChain } from "@/constants";
 
 type Props = {
-  amount: string;
   gas: number;
   onChange: (percent: number) => void;
   maxDestinationGas: bigint | null;
@@ -15,7 +14,6 @@ type Props = {
 };
 
 const DestinationGas = ({
-  amount,
   gas,
   onChange,
   maxDestinationGas,
@@ -49,7 +47,7 @@ const DestinationGas = ({
       <div className={styles.gasDetails} style={{ opacity: gas ? 1 : 0 }}>
         <div className={styles.gasAmount}>
           <span className={styles.gasCoin}>USDC</span>
-          <span>{+amount < gas ? amount : gas}</span>
+          <span>{gas}</span>
         </div>
         <div className={styles.gasAmount}>
           <span className={styles.gasCoin}>{destination}</span>

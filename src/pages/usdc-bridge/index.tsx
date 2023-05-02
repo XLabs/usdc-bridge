@@ -40,7 +40,6 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import DarkModeSwitch from "@/components/atoms/DarkModeSwitch";
-import "react-toastify/dist/ReactToastify.css";
 // import Splash from "@/components/atoms/Splash";
 
 import { Contract, ethers, Signer } from "ethers";
@@ -157,7 +156,7 @@ export default function Home() {
 
   const [boxWalletTxt, setBoxWalletTxt] = useState("...");
   const [headerWalletTxt, setHeaderWalletTxt] = useState<any>("...");
-  const [balance, setBalance] = useState("");
+  const [balance, setBalance] = useState("0");
 
   // AMOUNT TO TRANSFER SHOULD NEVER BE HIGHER THAN BALANCE
   useEffect(() => {
@@ -177,18 +176,12 @@ export default function Home() {
   // setDestinationGas but with all its logic needed
   const changeDestinationGas = (percentage: number) => {
     setSliderPercentage(percentage);
-
     if (maxDestinationGas) {
       const maxGas = Number(formatUnits(maxDestinationGas, USDC_DECIMALS));
       const currentGas = ((maxGas * percentage) / 100).toFixed(AMOUNT_DECIMALS);
 
-      if (+currentGas > +amount) {
-        changeAmount(`${(+currentGas + 0.1).toFixed(2)}`);
-        // setDestinationGas(+currentGas);
-      } else {
-        setDestinationGas(+currentGas);
-        setToNativeAmount(parseUnits(currentGas, USDC_DECIMALS).toBigInt());
-      }
+      setDestinationGas(+currentGas);
+      setToNativeAmount(parseUnits(currentGas, USDC_DECIMALS).toBigInt());
     }
   };
 
@@ -197,6 +190,11 @@ export default function Home() {
     let newAmount = a;
 
     if (balance && +newAmount > +balance) {
+      infoToast(
+        "You cannot send more than your balance",
+        3000,
+        "moreThanBalance"
+      );
       return;
     }
 
@@ -394,7 +392,7 @@ export default function Home() {
       signer
     );
 
-    infoToast("Starting transaction...");
+    infoToast("Starting transaction...", 2000);
     setIsTransfering(true);
 
     try {
@@ -406,14 +404,14 @@ export default function Home() {
         hexZeroPad(signerAddress, 32)
       );
 
-      infoToast(`(1/4) Transaction hash: ${tx.hash}`);
+      infoToast(`(1/4) Transaction hash: ${tx.hash}`, 5000);
       console.log("tx hash:", tx.hash);
 
       // TOAST FEEDBACK CONTRACT
       let processing = true;
       const processingSourceFeedback = () => {
         if (processing) {
-          infoToast("Waiting for the contract to finish processing");
+          infoToast("Waiting for the contract to finish processing", 3000);
           processingSourceFeedbackTimeout = setTimeout(
             processingSourceFeedback,
             15000
@@ -454,7 +452,10 @@ export default function Home() {
       processing = true;
       const processCircleFeedback = () => {
         if (processing) {
-          infoToast("Still processing: Waiting for enough block confirmations");
+          infoToast(
+            "Still processing: Waiting for enough block confirmations",
+            4000
+          );
           processFeedbackTimeout = setTimeout(processCircleFeedback, 22500);
         }
       };
@@ -466,7 +467,7 @@ export default function Home() {
 
       processing = false;
       clearTimeout(processFeedbackTimeout);
-      infoToast("(3/4) Circle attestation done");
+      infoToast("(3/4) Circle attestation done", 4000);
 
       if (circleBridgeMessage === null || circleAttestation === null) {
         throw new Error(`Error parsing receipt for ${tx.hash}`);
@@ -509,9 +510,10 @@ export default function Home() {
             </a>,
             11000
           );
+          clearInputs();
         } else if (response !== "ERRORED") {
           attempts++;
-          infoToast("Waiting for the relay to happen...");
+          infoToast("Waiting for the relay to happen...", 4000);
           setTimeout(() => {
             waitForRelayRedeem();
           }, 12000);
@@ -520,6 +522,7 @@ export default function Home() {
             "We were not able to get the transaction relay status. It should arrive shortly!"
           );
           setIsTransfering(false);
+          clearInputs();
         }
       };
       waitForRelayRedeem();
@@ -553,6 +556,14 @@ export default function Home() {
 
   const mainBtnLoading =
     isProcessingApproval || isTransfering || isFetchingAllowance;
+
+  const clearInputs = () => {
+    setDestinationGas(0);
+    setAmount("0");
+    setToNativeAmount(BigInt(0));
+    setSliderPercentage(0);
+    setEstimatedGas(null);
+  };
 
   useEffect(() => {
     if (
@@ -663,7 +674,6 @@ export default function Home() {
           )}
 
           <DestinationGas
-            amount={amount}
             gas={destinationGas}
             onChange={changeDestinationGas}
             destination={destination}

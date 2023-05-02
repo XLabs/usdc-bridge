@@ -3,39 +3,45 @@ import { toast } from "react-toastify";
 
 export const errorToast = (
   textOrComponent: string | ReactNode,
-  ms?: number
+  ms?: number,
+  id?: string
 ) => {
   toast.error(textOrComponent, {
-    position: "bottom-center",
     hideProgressBar: true,
     pauseOnHover: true,
     draggable: false,
-    autoClose: 6000 || ms,
+    autoClose: ms ? ms : 6000,
     theme: "colored",
+    toastId: id ? id : undefined,
   });
 };
 
 export const successToast = (
   textOrComponent: string | ReactNode,
-  ms?: number
+  ms?: number,
+  id?: string
 ) => {
   toast.success(textOrComponent, {
-    position: "bottom-center",
     hideProgressBar: true,
     pauseOnHover: true,
     draggable: false,
-    autoClose: 6000 || ms,
+    autoClose: ms ? ms : 6000,
     theme: "colored",
+    toastId: id ? id : undefined,
   });
 };
 
-export const infoToast = (textOrComponent: string | ReactNode, ms?: number) => {
+export const infoToast = (
+  textOrComponent: string | ReactNode,
+  ms?: number,
+  id?: string
+) => {
   toast.info(textOrComponent, {
-    position: "bottom-center",
     hideProgressBar: true,
     pauseOnHover: true,
     draggable: false,
-    autoClose: 6000 || ms,
+    autoClose: ms ? ms : 6000,
     theme: "colored",
+    toastId: id ? id : undefined,
   });
 };

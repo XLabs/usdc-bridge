@@ -1,4 +1,6 @@
 import "@/styles/globals.css";
+import "react-toastify/dist/ReactToastify.css";
+
 import type { AppProps } from "next/app";
 import { WagmiConfig, configureChains, createClient } from "wagmi";
 import { publicProvider } from "wagmi/providers/public";
@@ -29,6 +31,8 @@ export default function App({ Component, pageProps }: AppProps) {
         toastStyle={{ cursor: "default", textAlign: "center" }}
         draggable={false}
         pauseOnHover
+        position="bottom-left"
+        limit={2}
       />
       <Component {...pageProps} />
     </WagmiConfig>

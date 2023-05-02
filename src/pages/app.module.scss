@@ -33,6 +33,13 @@
       gap: 48px;
     }
 
+    a {
+      font-size: 14px;
+      @include tablet {
+        font-size: 16px;
+      }
+    }
+
     img {
       filter: invert(1);
       @include dark {
@@ -46,7 +53,7 @@
     flex-direction: row;
     align-items: center;
     gap: 16px;
-    transform: scale(0.8) translateX(-20px);
+    transform: scale(0.8) translateX(-8px);
     @media only screen and (min-width: 391px) {
       transform: scale(0.9) translateX(-8px);
     }
