@@ -594,7 +594,7 @@ export default function Home() {
           <Image
             // alt="stable logo"
             alt="Portal"
-            width={200}
+            width={155}
             height={68}
             src="/portal.svg"
             // src="/stable.png"

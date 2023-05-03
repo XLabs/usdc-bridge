@@ -15,16 +15,9 @@
   );
 
   .logo {
-    margin-left: 2%;
     display: flex;
-    flex-direction: row;
-    align-items: flex-end;
     font-weight: 500;
-
-    gap: 6px;
-    @include tablet {
-      gap: 48px;
-    }
+    margin-right: 6px;
 
     a {
       font-size: 14px;
@@ -56,7 +49,13 @@
       font-size: 14px;
       letter-spacing: 0.15px;
       font-family: "Suisse BP Intl", sans-serif;
-      margin-right: 32px;
+      margin-right: 4px;
+      @include tablet {
+        margin-right: 16px;
+      }
+      @include desktop {
+        margin-right: 32px;
+      }
 
       &:hover {
         text-decoration: underline;
@@ -91,7 +90,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 78px;
+      text-align: center;
+
+      font-size: 60px;
+      @include tablet {
+        font-size: 70px;
+      }
+
+      @include desktop {
+        font-size: 78px;
+      }
 
       gap: 12px;
       opacity: 0.85;
