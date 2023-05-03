@@ -590,6 +590,7 @@ export default function Home() {
     <main className={`${styles.main} ${poppins.className}`}>
       {/* <Splash /> */}
       <header className={styles.header}>
+        <div className={styles.gradBg} />
         <div className={styles.logo}>
           <Image
             // alt="stable logo"
