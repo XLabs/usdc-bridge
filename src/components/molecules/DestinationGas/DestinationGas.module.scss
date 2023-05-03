@@ -9,7 +9,10 @@
 
   .question {
     margin-left: 4px;
-    padding: 0px 4px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 5px;
+    padding-right: 4px;
 
     border-radius: 50%;
     font-size: 12px;
@@ -22,23 +25,24 @@
 
   .gasSlider {
     width: 40%;
-    height: 10px;
+    height: 6px;
     background-color: rgba(var(--foreground-rgb), 0.15);
     border-radius: 6px;
 
     .gasSelector {
-      width: 24px;
-      height: 24px;
+      width: 18px;
+      height: 18px;
       margin-top: -6px;
       border-radius: 50%;
-      background-color: rgba(var(--foreground-rgb), 1);
+      background-color: rgb(var(--foreground-rgb));
+      border: 1px solid rgba(var(--background-start-rgb), 0.25);
       cursor: pointer;
     }
   }
 
   .sliderLoading {
     width: 40%;
-    height: 10px;
+    height: 6px;
 
     display: flex;
     align-items: center;
@@ -65,6 +69,7 @@
   .gasAmount {
     font-size: 18px;
     font-weight: 300;
+    text-align: right;
 
     .gasCoin {
       display: inline-block;

@@ -1,4 +1,4 @@
-import { Manrope } from "next/font/google";
+import { Poppins } from "next/font/google";
 import styles from "@/pages/app.module.scss";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -39,7 +39,6 @@ import Image from "next/image";
 import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
-import DarkModeSwitch from "@/components/atoms/DarkModeSwitch";
 // import Splash from "@/components/atoms/Splash";
 
 import { Contract, ethers, Signer } from "ethers";
@@ -53,7 +52,10 @@ import axios from "axios";
 import Tooltip from "@/components/atoms/Tooltip";
 import Loader from "@/components/atoms/Loader";
 
-const manrope = Manrope({ subsets: ["latin"] });
+const poppins = Poppins({
+  weight: ["300", "400", "500", "600"],
+  subsets: ["latin"],
+});
 const chainList = isMainnet ? [avalanche, mainnet] : [avalancheFuji, goerli];
 
 export default function Home() {
@@ -141,7 +143,8 @@ export default function Home() {
         if (+transactionFee > +amount - +destinationGas) {
           infoToast(
             "The fee of this transaction is higher than the amount you are trying to receive.",
-            8000
+            8000,
+            "transactionFee"
           );
         } else {
           handleTransferClick();
@@ -584,34 +587,45 @@ export default function Home() {
   ]);
 
   return (
-    <main className={`${styles.main} ${manrope.className}`}>
+    <main className={`${styles.main} ${poppins.className}`}>
       {/* <Splash /> */}
       <header className={styles.header}>
         <div className={styles.logo}>
           <Image
-            alt="stable logo"
-            width={120}
-            height={30}
-            src={"/stable.png"}
+            // alt="stable logo"
+            alt="Portal"
+            width={200}
+            height={68}
+            src="/portal.svg"
+            // src="/stable.png"
           />
-          <a href={`${WEBAPP_URL}usdc-bridge`}>USDC</a>
         </div>
         <div className={styles.headerInteractions}>
-          <DarkModeSwitch />
-          <HeaderButtons
+          <div className={styles.headerLink}>
+            <a href="https://www.portalbridge.com/#/transfer">Token Bridge</a>
+          </div>
+          <div className={styles.headerLink}>
+            <a href="https://stable.portalbridge.com/">USDC Bridge</a>
+          </div>
+          <div className={styles.headerLink}>
+            <a href="https://docs.wormhole.com/wormhole/faqs">FAQ</a>
+          </div>
+          <div className={styles.headerLink}>
+            <a href="https://wormhole.com/">Wormhole</a>
+          </div>
+          {/* <HeaderButtons
             isConnected={isConnected}
             disconnect={disconnect}
             connect={connect}
             sourceChainId={sourceChainId}
             headerWalletTxt={headerWalletTxt}
             blockedInteractions={blockedInteractions}
-          />
+          /> */}
         </div>
       </header>
 
       <div className={styles.center}>
         <h2 className={styles.title}>
-          <Image alt="USDC icon" width={42} height={42} src={"/usdc.png"} />
           <span>USDC Bridge</span>
         </h2>
         <h3 className={styles.subtitle}>
@@ -720,7 +734,7 @@ export default function Home() {
               height={30}
             />
           </a>
-          <span> & </span>
+          {/* <span> & </span>
           <a href="https://wormhole.com/" target="_blank">
             <Image
               alt="Powered by Wormhole"
@@ -728,7 +742,7 @@ export default function Home() {
               width={200}
               height={45}
             />
-          </a>
+          </a> */}
         </div>
       </div>
       <footer>
@@ -760,6 +774,13 @@ export default function Home() {
           Contact Us
         </a>
       </footer>
+
+      <div className={styles.gradients}>
+        <div className={styles.gradientLeft} />
+        <div className={styles.gradientLeft2} />
+        <div className={styles.gradientRight} />
+        <div className={styles.gradientRight2} />
+      </div>
     </main>
   );
 }

@@ -7,19 +7,12 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid rgb(var(--foreground-rgb));
+  padding-top: 16px;
 
-  // background-color: rgba(var(--foreground-rgb), 0.05);
   background: linear-gradient(
-    rgba(var(--card-rgb), 0.1),
-    rgba(var(--background-end-rgb), 1)
+    rgba(var(--background-end-rgb), 0.5),
+    rgba(var(--foreground-rgb), 0)
   );
-  @include dark {
-    background: linear-gradient(
-      rgba(var(--background-end-rgb), 0.5),
-      rgba(var(--foreground-rgb), 0)
-    );
-  }
 
   .logo {
     margin-left: 2%;
@@ -41,10 +34,7 @@
     }
 
     img {
-      filter: invert(1);
-      @include dark {
-        filter: invert(0);
-      }
+      filter: invert(0);
     }
   }
 
@@ -60,6 +50,23 @@
     @media only screen and (min-width: 415px) {
       transform: none;
     }
+
+    .headerLink {
+      text-underline-offset: 6px;
+      font-size: 14px;
+      letter-spacing: 0.15px;
+      font-family: "Suisse BP Intl", sans-serif;
+      margin-right: 32px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      a[href="https://stable.portalbridge.com/"]
+      {
+        text-decoration: underline;
+      }
+    }
   }
 }
 
@@ -68,6 +75,8 @@
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  position: relative;
+  font-weight: 400;
 
   .center {
     display: flex;
@@ -82,7 +91,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 42px;
+      font-size: 78px;
 
       gap: 12px;
       opacity: 0.85;
@@ -94,7 +103,7 @@
 
     .subtitle {
       font-size: 18px;
-      font-weight: 500;
+      font-weight: 400;
       margin-bottom: 3vh;
       margin-left: 10%;
       margin-right: 10%;
@@ -111,7 +120,9 @@
       flex-direction: column;
       z-index: 2;
 
-      box-shadow: inset 0px 0px 4px 1px rgba(var(--foreground-rgb), 0.3);
+      box-shadow: inset 0px 0px 2px 0px rgba(var(--foreground-rgb), 0.3);
+      background-color: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(4px);
 
       border-radius: 8px;
 
@@ -185,24 +196,19 @@
       button {
         border: 0px;
         border-radius: 6px;
-        height: 32px;
+        height: 40px;
         margin-top: 3vh;
         font-weight: 600;
         font-size: 16px;
         cursor: pointer;
+        font-family: inherit;
         box-shadow: 2px 2px 2px 0px rgba(var(--foreground-rgb), 0.3);
 
-        color: white;
-        background-color: #000027;
+        background-color: rgba(var(--foreground-rgb), 0.95);
+        color: black;
+
         &:hover {
-          background-color: #00001a;
-        }
-        @include dark {
-          background-color: rgba(var(--foreground-rgb), 0.95);
-          color: black;
-          &:hover {
-            background-color: rgb(var(--foreground-rgb));
-          }
+          background-color: rgb(var(--foreground-rgb));
         }
 
         &.btnLoading {
@@ -218,32 +224,21 @@
           user-select: none;
           position: relative;
           overflow: hidden;
-          background-image: linear-gradient(90deg, #000027, #000054);
-          @include dark {
-            background-image: linear-gradient(
-              90deg,
-              var(--foreground-rgb) dd,
-              var(--foreground-rgb)
-            );
-          }
+          background-image: linear-gradient(
+            90deg,
+            var(--foreground-rgb) dd,
+            var(--foreground-rgb)
+          );
 
           &.txLoading::before {
             animation: loading 1000s forwards !important;
 
             background-image: linear-gradient(
               90deg,
-              rgba(var(--background-start-rgb), 0.25),
+              rgba(var(--background-start-rgb), 0.3),
               rgba(var(--background-start-rgb), 0.35),
-              rgba(var(--background-start-rgb), 0.25)
+              rgba(var(--background-start-rgb), 0.3)
             );
-            @include dark {
-              background-image: linear-gradient(
-                90deg,
-                rgba(var(--background-start-rgb), 0.3),
-                rgba(var(--background-start-rgb), 0.35),
-                rgba(var(--background-start-rgb), 0.3)
-              );
-            }
           }
 
           &::before {
@@ -258,18 +253,10 @@
 
             background-image: linear-gradient(
               90deg,
-              rgba(var(--background-start-rgb), 0.05),
-              rgba(var(--background-start-rgb), 0.15),
-              rgba(var(--background-start-rgb), 0.05)
+              rgba(var(--background-start-rgb), 0.1),
+              rgba(var(--background-start-rgb), 0.2),
+              rgba(var(--background-start-rgb), 0.15)
             );
-            @include dark {
-              background-image: linear-gradient(
-                90deg,
-                rgba(var(--background-start-rgb), 0.1),
-                rgba(var(--background-start-rgb), 0.2),
-                rgba(var(--background-start-rgb), 0.15)
-              );
-            }
           }
         }
       }
@@ -309,16 +296,14 @@
       }
 
       img {
-        @include dark {
-          filter: invert(1) brightness(100);
-        }
+        filter: invert(1) brightness(100);
       }
     }
   }
 
   footer {
     width: 100%;
-    border-top: 2px solid rgb(var(--foreground-rgb));
+    border-top: 1px solid rgba(var(--foreground-rgb), 0.15);
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -327,7 +312,8 @@
     height: 40px;
     gap: 16px;
 
-    background-color: rgb(var(--background-start-rgb));
+    background-color: rgba(23, 21, 63, 0.3);
+    backdrop-filter: blur(4px);
 
     z-index: 5;
     position: relative;
@@ -345,13 +331,88 @@
       img {
         transition: transform 0.15s ease-out;
         transform: rotate(0deg);
+        filter: invert(1);
         &:hover {
           transform: rotate(-10deg);
         }
-        @include dark {
-          filter: invert(1);
-        }
       }
+    }
+  }
+
+  .gradients {
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.65;
+    z-index: -1;
+
+    .gradientRight {
+      position: absolute;
+      top: 72px;
+      right: -1000px;
+      width: 1757px;
+      height: 1506px;
+      background: radial-gradient(
+        closest-side at 50% 50%,
+        #ffce00 0%,
+        #ffce0000 100%
+      );
+      opacity: 0.2;
+      transform: matrix(0.87, 0.48, -0.48, 0.87, 0, 0);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .gradientLeft {
+      top: -530px;
+      left: -350px;
+      width: 1379px;
+      height: 1378px;
+      position: absolute;
+      background: radial-gradient(
+        closest-side at 50% 50%,
+        #f44b1b 0%,
+        #f44b1b00 100%
+      );
+      opacity: 0.2;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .gradientLeft2 {
+      bottom: -330px;
+      left: -350px;
+      width: 1379px;
+      height: 1378px;
+      position: absolute;
+      background: radial-gradient(
+        closest-side at 50% 50%,
+        #f44b1b 0%,
+        #f44b1b00 100%
+      );
+      opacity: 0.2;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .gradientRight2 {
+      position: absolute;
+      bottom: -900px;
+      right: -1000px;
+      width: 1757px;
+      height: 1506px;
+      background: radial-gradient(
+        closest-side at 50% 50%,
+        #ffce00 0%,
+        #ffce0000 100%
+      );
+      opacity: 0.24;
+      transform: matrix(0.87, 0.48, -0.48, 0.87, 0, 0);
+      z-index: -1;
+      pointer-events: none;
     }
   }
 }

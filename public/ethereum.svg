@@ -1,1 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1920" xml:space="preserve"><path fill="#8A92B2" d="M959.8 80.7 420.1 976.3 959.8 731z"/><path fill="#62688F" d="M959.8 731 420.1 976.3l539.7 319.1zM1499.6 976.3 959.8 80.7V731z"/><path fill="#454A75" d="m959.8 1295.4 539.8-319.1L959.8 731z"/><path fill="#8A92B2" d="m420.1 1078.7 539.7 760.6v-441.7z"/><path fill="#62688F" d="M959.8 1397.6v441.7l540.1-760.6z"/></svg>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="24" height="24" rx="12" fill="#627EEA"/>
+<mask id="mask0_37_299" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="4" y="4" width="16" height="16">
+<rect x="4" y="4" width="16" height="16" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_37_299)">
+<path d="M12.2002 4.05273L7.1543 12.1054L12.2002 9.89485V4.05273Z" fill="white"/>
+<path d="M12.2002 9.89551L7.1543 12.106L12.2002 14.9481V9.89551Z" fill="white" fill-opacity="0.85"/>
+<path d="M17.2461 12.1054L12.2002 4.05273V9.89485L17.2461 12.1054Z" fill="#EAEAEA"/>
+<path d="M12.2002 14.9481L17.2461 12.106L12.2002 9.89551V14.9481Z" fill="white" fill-opacity="0.75"/>
+<path d="M7.1543 13L12.2002 19.8421V15.8948L7.1543 13Z" fill="white"/>
+<path d="M12.2002 15.8948V19.8421L17.2461 13L12.2002 15.8948Z" fill="#EAEAEA"/>
+</g>
+</svg>

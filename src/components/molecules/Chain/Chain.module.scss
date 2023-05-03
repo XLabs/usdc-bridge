@@ -3,7 +3,7 @@
 .chainContainer {
   height: 5vh;
   border-radius: 4px;
-  background-color: rgb(var(--background-end-rgb));
+  // background-color: rgb(var(--background-end-rgb));
 
   display: flex;
   justify-content: center;
@@ -65,15 +65,14 @@
     text-align: center;
 
     padding-right: 12px;
-    background-color: rgba(var(--background-end-rgb));
+    background-color: #17153f;
 
     &:hover {
-      background-color: rgba(var(--background-start-rgb));
+      background-color: darken(#17153f, 3%);
     }
 
     @include tablet {
       font-size: 20px;
-      // width: 200px;
       padding-right: 6px;
     }
 
