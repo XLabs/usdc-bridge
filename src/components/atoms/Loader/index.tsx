@@ -8,7 +8,7 @@ const Loader = ({ size = "l" }: Props) => (
   <div
     className={styles.spinnerLoaderContainer}
     style={{
-      transform: `scale(${size === "m" ? 0.6 : 1}) translateY(-${
+      transform: `scale(${size === "m" ? 0.75 : 1}) translateY(-${
         size === "m" ? 6 : 0
       }px)`,
     }}
