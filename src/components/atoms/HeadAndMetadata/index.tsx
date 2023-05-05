@@ -16,7 +16,7 @@ const HeadAndMetadata = () => (
       property="og:description"
       content="Bridge or transfer native USDC between Ethereum and Avalanche powered by Circle's CCTP."
     />
-    <meta property="og:image" content={`${WEBAPP_URL}stable_banner.png`} />
+    <meta property="og:image" content={`${WEBAPP_URL}bridge_banner.png`} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta property="twitter:domain" content="stable.portalbridge.com" />
@@ -26,7 +26,7 @@ const HeadAndMetadata = () => (
       name="twitter:description"
       content="Bridge or transfer native USDC between Ethereum and Avalanche powered by Circle's CCTP."
     />
-    <meta name="twitter:image" content={`${WEBAPP_URL}stable_banner.png`} />
+    <meta name="twitter:image" content={`${WEBAPP_URL}bridge_banner.png`} />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />

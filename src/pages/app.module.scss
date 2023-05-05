@@ -2,15 +2,24 @@
 
 .header {
   width: 100%;
-  height: max(6vh, 36px);
+  // height: max(6vh, 36px);
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+
   padding-top: 16px;
+
   max-width: 1440px;
   margin-left: auto;
   margin-right: auto;
+
+  padding-left: 8px;
+  padding-right: 8px;
+  @media only screen and (min-width: 580px) {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
 
   .gradBg {
     position: absolute;
@@ -20,7 +29,7 @@
     right: 0;
     height: max(6vh, 36px);
     background: linear-gradient(
-      rgba(var(--background-end-rgb), 0.4),
+      rgba(var(--background-end-rgb), 0.35),
       rgba(var(--foreground-rgb), 0)
     );
   }
@@ -47,37 +56,35 @@
     flex-direction: row;
     align-items: center;
     gap: 6px;
-    transform: scale(0.8) translateX(-10px);
-    @media only screen and (min-width: 415px) {
-      transform: scale(0.9) translateX(-8px);
+    transform: scale(0.9);
+
+    @media only screen and (min-width: 580px) {
+      transform: none;
       gap: 12px;
     }
-    @media only screen and (min-width: 500px) {
-      transform: none;
-      gap: 16px;
+
+    @include tablet {
+      gap: 20px;
+    }
+
+    @media only screen and (min-width: 960px) {
+      gap: 32px;
     }
 
     .headerLink {
       text-underline-offset: 6px;
       font-size: 13px;
       font-family: "Suisse BP Intl";
-      letter-spacing: 0.25px;
 
-      margin-right: 4px;
-      @include tablet {
-        margin-right: 16px;
-      }
-      @include desktop {
-        margin-right: 32px;
-      }
+      @media only screen and (min-width: 580px) {
+        &:hover {
+          text-decoration: underline;
+        }
 
-      &:hover {
-        text-decoration: underline;
-      }
-
-      a[href="https://stable.portalbridge.com/"]
-      {
-        text-decoration: underline;
+        a[href="https://stable.portalbridge.com/"]
+        {
+          text-decoration: underline;
+        }
       }
     }
   }
@@ -98,7 +105,7 @@
     align-items: center;
     position: relative;
     padding-bottom: 1vh;
-    margin-top: 2vh;
+    margin-top: 1vh;
 
     .title {
       display: flex;
@@ -106,13 +113,14 @@
       justify-content: center;
       text-align: center;
 
+      font-family: "Suisse BP Intl";
       font-size: 60px;
       @include tablet {
         font-size: 70px;
       }
 
       @include desktop {
-        font-size: 78px;
+        font-size: 85px;
       }
 
       gap: 12px;
@@ -368,7 +376,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    opacity: 0.8;
+    opacity: 0.9;
     z-index: -1;
 
     .gradientRight {

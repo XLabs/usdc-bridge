@@ -738,7 +738,7 @@ export default function Home() {
               height={30}
             />
           </a>
-          {/* <span> & </span>
+          <span> & </span>
           <a href="https://wormhole.com/" target="_blank">
             <Image
               alt="Powered by Wormhole"
@@ -746,7 +746,7 @@ export default function Home() {
               width={200}
               height={45}
             />
-          </a> */}
+          </a>
         </div>
       </div>
       <footer>
