@@ -11,7 +11,10 @@ const HeadAndMetadata = () => (
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta property="og:url" content={`${WEBAPP_URL}usdc-bridge`} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Stable: Cross-Chain USDC Transfers" />
+    <meta
+      property="og:title"
+      content="USDC Bridge: Cross-Chain USDC Transfers"
+    />
     <meta
       property="og:description"
       content="Bridge or transfer native USDC between Ethereum and Avalanche powered by Circle's CCTP."
@@ -21,7 +24,10 @@ const HeadAndMetadata = () => (
     <meta name="twitter:card" content="summary_large_image" />
     <meta property="twitter:domain" content="stable.portalbridge.com" />
     <meta property="twitter:url" content={`${WEBAPP_URL}usdc-bridge`} />
-    <meta name="twitter:title" content="Stable: Cross-Chain USDC Transfers" />
+    <meta
+      name="twitter:title"
+      content="USDC Bridge: Cross-Chain USDC Transfers"
+    />
     <meta
       name="twitter:description"
       content="Bridge or transfer native USDC between Ethereum and Avalanche powered by Circle's CCTP."
