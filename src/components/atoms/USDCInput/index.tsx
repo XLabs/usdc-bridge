@@ -58,7 +58,7 @@ const USDCInput = ({ value, setValue, maxDecimals }: Props) => {
         onClick={() => value === "0" && amountInputRef.current?.select()}
       />
       <div className={styles.usdcText}>
-        <Image alt="USDC icon" width={26} height={26} src={"/usdc.png"} />
+        <Image alt="USDC icon" width={26} height={26} src={`${process.env.NEXT_PUBLIC_BASE_PATH}/usdc.png`} />
         <span>USDC</span>
       </div>
     </div>

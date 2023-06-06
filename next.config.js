@@ -1,13 +1,13 @@
-const isDeploying = process.env.DEPLOY === "deploy";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  basePath: "",
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH,
   images: {
-    unoptimized: isDeploying ? true : false,
+    unoptimized: !!process.env.DEPLOY,
   },
-  output: isDeploying ? 'export' : 'standalone',
+  output: !!process.env.DEPLOY ? 'export' : 'standalone',
 }
 
 module.exports = nextConfig

@@ -25,17 +25,11 @@ body {
 
   color: rgb(var(--foreground-rgb));
 
-  background-image: url("/backgroundCircles.svg");
+  background-image: url("../../public/backgroundCircles.svg");
   background-repeat: repeat-y;
   background-position: top center;
 
   background-color: #17153f;
-  /* background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb)); */
 }
 
 a {
@@ -86,7 +80,7 @@ a {
 
 @font-face {
   font-family: "Suisse BP Intl";
-  src: url("/SuisseBPIntlBold.woff2") format("woff2");
+  src: url("../../public/SuisseBPIntlBold.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
   font-style: normal;

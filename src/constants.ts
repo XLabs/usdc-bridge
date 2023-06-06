@@ -74,9 +74,7 @@ export const getEvmChainId = (chainId: ChainId) =>
       : AVAX_NETWORK_CHAIN_ID_TESTNET
     : undefined;
 
-export const WEBAPP_URL = isMainnet
-  ? "https://stable.portalbridge.com/"
-  : "https://dev.stable.io/";
+export const WEBAPP_URL = process.env.NEXT_APP_PUBLIC_URL || "/usdc-bridge";
 
 export const CIRCLE_BRIDGE_ADDRESSES: { [key in ChainId]?: string } = {
   [CHAIN_ID_ETH]: isMainnet
@@ -86,9 +84,6 @@ export const CIRCLE_BRIDGE_ADDRESSES: { [key in ChainId]?: string } = {
     ? "0x09Fb06A271faFf70A651047395AaEb6265265F13"
     : "0x0fC1103927AF27aF808D03135214718bCEDbE9ad",
 };
-
-// const ETH_SWAP_CONTRACT_ADDRESS = "0x4c2a0a56e017143dd576f59471083357354b88de";
-// const AVAX_SWAP_CONTRACT_ADDRESS = "0x1ea3652b401532297032ae6e7ac4d8533446876d";
 
 export const CIRCLE_EMITTER_ADDRESSES: { [key in ChainId]?: string } = {
   [CHAIN_ID_ETH]: isMainnet
@@ -103,11 +98,6 @@ export const CIRCLE_DOMAINS: { [key in ChainId]?: number } = {
   [CHAIN_ID_ETH]: 0,
   [CHAIN_ID_AVAX]: 1,
 };
-
-// export const CIRCLE_DOMAIN_TO_WORMHOLE_CHAIN: { [key in number]: ChainId } = {
-//   0: CHAIN_ID_ETH,
-//   1: CHAIN_ID_AVAX,
-// };
 
 const USDC_WH_INTEGRATION: { [key in ChainId]?: string } = {
   [CHAIN_ID_ETH]: "0x0a69146716b3a21622287efa1607424c663069a4",
