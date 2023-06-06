@@ -29,9 +29,9 @@ const Splash = () => {
       }}
       className={styles.splash}
     >
-      <Image width={200} height={50} alt="Stable logo" src="/stable.png" />
+      <Image width={200} height={50} alt="Stable logo" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/stable.png`} />
       <div className={styles.usdc}>
-        <Image width={40} height={40} alt="USDC icon" src="/usdc.png" />
+        <Image width={40} height={40} alt="USDC icon" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/usdc.png`} />
         <h1>USDC Bridge</h1>
       </div>
       <div className={styles.loader}>

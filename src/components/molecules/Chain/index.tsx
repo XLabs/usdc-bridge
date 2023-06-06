@@ -11,8 +11,8 @@ type Props = {
 };
 
 const Chain = ({ source, changeSource, initial }: Props) => {
-  const initialSrc = initial === "AVAX" ? "/avalanche.svg" : "/ethereum.svg";
-  const otherSrc = initial === "AVAX" ? "/ethereum.svg" : "/avalanche.svg";
+  const initialSrc = initial === "AVAX" ? `${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg` : `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`;
+  const otherSrc = initial === "AVAX" ? `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg` : `${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`;
 
   const initialTxt = initial === "AVAX" ? "Avalanche" : "Ethereum";
   const otherTxt = initial === "AVAX" ? "Ethereum" : "Avalanche";

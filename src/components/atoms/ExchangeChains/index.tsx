@@ -1,7 +1,6 @@
 import styles from "./ExchangeChains.module.scss";
 import { IChain } from "@/constants";
 import Image from "next/image";
-import { useState } from "react";
 
 type Props = {
   onClick: () => void;
@@ -19,7 +18,7 @@ const ExchangeChains = ({ onClick, source }: Props) => {
     >
       <Image
         alt="Exchange source and destination chains"
-        src="/fromTo.png"
+        src={`${process.env.NEXT_PUBLIC_BASE_PATH}/fromTo.png`}
         width={30}
         height={30}
       />
