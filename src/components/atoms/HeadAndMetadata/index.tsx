@@ -7,8 +7,6 @@ const HeadAndMetadata = () => (
       name="description"
       content="Bridge USDC natively between blockchains for free. Send or transfer USDC between Ethereum and Avalanche powered by Circle’s Cross-Chain Transfer Protocol."
     />
-    <meta http-equiv="refresh" content="0; URL=https://www.portalbridge.com/usdc-bridge/">
-    <link rel="canonical" href="https://www.portalbridge.com/usdc-bridge/"></link>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta property="og:url" content={`${process.env.NEXT_PUBLIC_BASE_PATH}`} />
     <meta property="og:type" content="website" />
