@@ -593,7 +593,7 @@ export default function Home() {
             <a href="https://www.portalbridge.com/sui">Sui Bridge</a>
           </div>
           <div className={styles.headerLink}>
-            <a href="https://docs.wormhole.com/wormhole/faqs">FAQ</a>
+            <a href="../docs">FAQ</a>
           </div>
           <div className={styles.headerLink}>
             <a href="https://wormhole.com/">Wormhole</a>
