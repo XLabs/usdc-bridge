@@ -3,8 +3,6 @@ import styles from "@/pages/app.module.scss";
 import { useCallback, useEffect, useState } from "react";
 import {
   AMOUNT_DECIMALS,
-  // CIRCLE_BRIDGE_ADDRESSES,
-  // CIRCLE_DOMAINS,
   CIRCLE_EMITTER_ADDRESSES,
   getEvmChainId,
   IChain,
@@ -16,7 +14,6 @@ import {
   USDC_DECIMALS,
   USDC_RELAYER_MAINNET,
   USDC_RELAYER_TESTNET,
-  // USDC_WH_EMITTER,
   ETH_EXPLORER,
   AVAX_EXPLORER,
   getRelayFeedbackUrl,
@@ -47,13 +44,14 @@ const poppins = Poppins({
   subsets: ["latin"],
 });
 const chainList = isMainnet ? [avalanche, mainnet, arbitrum] : [avalancheFuji, goerli, arbitrumGoerli];
+const getChainId = (chain: IChain) => (chain === "AVAX" ? CHAIN_ID_AVAX : chain === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH);
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
   const [destination, setDestination] = useState<IChain>("ETH");
 
-  const sourceChainId = source === "AVAX" ? CHAIN_ID_AVAX : source === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH;
-  const destinationChainId = destination === "AVAX" ? CHAIN_ID_AVAX : destination === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH;
+  const sourceChainId = getChainId(source);
+  const destinationChainId = getChainId(destination);
 
   const [blockedInteractions, setBlockedInteraction] = useState(false);
   const { address, isConnected } = useAccount();
@@ -68,6 +66,14 @@ export default function Home() {
           <p>(Did you approve the connection?)</p>
         </div>
       );
+    },
+    onSuccess: (data) => {
+      console.log("data puta");
+      console.log({
+        data,
+        address,
+        isConnected,
+      });
     },
     connector: new InjectedConnector({
       chains: chainList,
@@ -102,11 +108,23 @@ export default function Home() {
     if (isConnected) {
       setSwitchingNetwork(true);
     }
-    setSource(destination);
+
+    const newSource = destination;
+    console.log({
+      source,
+      destination,
+      newSource,
+      destinationChainId,
+      evmChain: getEvmChainId(destinationChainId),
+    });
+
     setDestination(source);
+    setSource(newSource);
+
     if (failedSwitch) {
       setSwitchingNetwork(false);
     } else {
+      console.log("about to switch");
       switchNetwork?.(getEvmChainId(destinationChainId));
     }
   };
@@ -124,7 +142,7 @@ export default function Home() {
     if (failedSwitch) {
       setSwitchingNetwork(false);
     } else {
-      switchNetwork?.(getEvmChainId(destinationChainId));
+      switchNetwork?.(getEvmChainId(getChainId(newSource)));
     }
   };
 
@@ -142,13 +160,18 @@ export default function Home() {
 
   // main button function:
   const handleBoxWallet = () => {
+    // CONNECT WALLET
     if (!isConnected) {
+      console.log("about to connect...", {
+        sourceChainId,
+        evmChainId: getEvmChainId(sourceChainId),
+      });
       connect({ chainId: getEvmChainId(sourceChainId) });
     } else {
       // TRANSFER
       if (sufficientAllowance) {
         if (+transactionFee > +amount - +destinationGas) {
-          infoToast("The fee of this transaction is higher than the amount you are trying to receive.", 8000, "transactionFee");
+          infoToast("The fee of this transaction is higher than the amount you are trying to receive.", 8000);
         } else {
           handleTransferClick();
         }
@@ -196,7 +219,7 @@ export default function Home() {
     let newAmount = a;
 
     if (balance && +newAmount > +balance) {
-      infoToast("You cannot send more than your balance", 3000, "moreThanBalance");
+      infoToast("You cannot send more than your balance", 3000);
       return;
     }
 
@@ -433,7 +456,8 @@ export default function Home() {
           .catch((error) => {
             console.log("Error getting relayer info for", tx.hash);
             console.error(error);
-            return "ERRORED";
+            if (attempts > 0) return "ERRORED";
+            return "FIRST_ERR";
           });
       };
 
@@ -605,6 +629,20 @@ export default function Home() {
           />
 
           <button
+            // onClick={() => {
+            //   (async () => {
+            //     fetch(
+            //       "https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.dev.stable.io/v1/relays?test=hola0&txHash=0xef1e512da377f8498f74aedb74e9e3ace21edff709c9f772c9736939214a3fad"
+            //     )
+            //       .then(async (a) => {
+            //         const b = await a.json();
+            //         console.log("resp", b);
+            //       })
+            //       .catch((e) => {
+            //         console.log("e", e);
+            //       });
+            //   })();
+            // }}
             onClick={() => !mainBtnLoading && handleBoxWallet()}
             className={`${mainBtnLoading ? `${styles.btnLoading} ${isTransfering ? styles.txLoading : ""}` : ""}`}
           >
