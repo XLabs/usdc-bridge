@@ -7,8 +7,8 @@ import { errorToast, infoToast, successToast } from "./toast";
 
 export default function useAllowance(
   signer: ethers.Signer,
-  sourceChainId: 2 | 6,
-  destinationChainId: 2 | 6,
+  sourceChainId: 2 | 6 | 23,
+  destinationChainId: 2 | 6 | 23,
   tokenAddress: string,
   transferAmount: string,
   sourceRelayContract: string
@@ -18,18 +18,12 @@ export default function useAllowance(
   const [isFetchingAllowance, setIsFetchingAllowance] = useState(false);
   const [isProcessingApproval, setIsApproving] = useState<boolean>(false);
 
-  const sufficientAllowance =
-    allowance && transferAmount && +allowance >= +transferAmount;
+  const sufficientAllowance = allowance && transferAmount && +allowance >= +transferAmount;
 
   useEffect(() => {
     let cancelled = false;
 
-    if (
-      tokenAddress &&
-      signer &&
-      sourceRelayContract &&
-      !isProcessingApproval
-    ) {
+    if (tokenAddress && signer && sourceRelayContract && !isProcessingApproval) {
       setIsFetchingAllowance(true);
 
       // Getting transaction fee
@@ -65,10 +59,7 @@ export default function useAllowance(
       );
 
       (async () => {
-        const getFeeTx: BigNumber = await contract.relayerFee(
-          destinationChainId,
-          tokenAddress
-        );
+        const getFeeTx: BigNumber = await contract.relayerFee(destinationChainId, tokenAddress);
 
         if (!cancelled) {
           const getFeeResult = formatUnits(getFeeTx, USDC_DECIMALS);
@@ -98,14 +89,7 @@ export default function useAllowance(
     return () => {
       cancelled = true;
     };
-  }, [
-    destinationChainId,
-    sourceChainId,
-    tokenAddress,
-    isProcessingApproval,
-    sourceRelayContract,
-    signer,
-  ]);
+  }, [destinationChainId, sourceChainId, tokenAddress, isProcessingApproval, sourceRelayContract, signer]);
 
   const approveAmount: (amount: string) => void = useMemo(() => {
     return (amount: string) => {
@@ -128,16 +112,12 @@ export default function useAllowance(
           },
           (rejected) => {
             console.error(rejected);
-            errorToast(
-              "Error: Something went wrong. (Did you reject the spending limit?)"
-            );
+            errorToast("Error: Something went wrong. (Did you reject the spending limit?)");
           }
         )
         .catch((err) => {
           console.error(err);
-          errorToast(
-            "Something went wrong approving the transaction. Check the console for more info"
-          );
+          errorToast("Something went wrong approving the transaction. Check the console for more info");
         })
         .finally(() => {
           canceled = true;
@@ -154,12 +134,6 @@ export default function useAllowance(
       sufficientAllowance,
       transactionFee,
     }),
-    [
-      approveAmount,
-      isFetchingAllowance,
-      isProcessingApproval,
-      sufficientAllowance,
-      transactionFee,
-    ]
+    [approveAmount, isFetchingAllowance, isProcessingApproval, sufficientAllowance, transactionFee]
   );
 }

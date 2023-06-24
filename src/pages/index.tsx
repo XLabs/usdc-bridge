@@ -3,8 +3,8 @@ import styles from "@/pages/app.module.scss";
 import { useCallback, useEffect, useState } from "react";
 import {
   AMOUNT_DECIMALS,
-  CIRCLE_BRIDGE_ADDRESSES,
-  CIRCLE_DOMAINS,
+  // CIRCLE_BRIDGE_ADDRESSES,
+  // CIRCLE_DOMAINS,
   CIRCLE_EMITTER_ADDRESSES,
   getEvmChainId,
   IChain,
@@ -16,21 +16,16 @@ import {
   USDC_DECIMALS,
   USDC_RELAYER_MAINNET,
   USDC_RELAYER_TESTNET,
-  USDC_WH_EMITTER,
+  // USDC_WH_EMITTER,
   ETH_EXPLORER,
   AVAX_EXPLORER,
   getRelayFeedbackUrl,
+  ARBITRUM_EXPLORER,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
-import {
-  useAccount,
-  useBalance,
-  useConnect,
-  useSigner,
-  useSwitchNetwork,
-} from "wagmi";
-import { avalanche, avalancheFuji, goerli, mainnet } from "wagmi/chains";
+import { useAccount, useBalance, useConnect, useSigner, useSwitchNetwork } from "wagmi";
+import { avalanche, avalancheFuji, goerli, mainnet, arbitrum, arbitrumGoerli } from "wagmi/chains";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
@@ -38,7 +33,7 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import { Contract, ethers, Signer } from "ethers";
-import { CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
@@ -51,13 +46,15 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600"],
   subsets: ["latin"],
 });
-const chainList = isMainnet ? [avalanche, mainnet] : [avalancheFuji, goerli];
+const chainList = isMainnet ? [avalanche, mainnet, arbitrum] : [avalancheFuji, goerli, arbitrumGoerli];
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("AVAX");
-  const destination = source === "AVAX" ? "ETH" : "AVAX";
-  const sourceChainId = source === "AVAX" ? CHAIN_ID_AVAX : CHAIN_ID_ETH;
-  const destinationChainId = source === "AVAX" ? CHAIN_ID_ETH : CHAIN_ID_AVAX;
+  const [destination, setDestination] = useState<IChain>("ETH");
+
+  const sourceChainId = source === "AVAX" ? CHAIN_ID_AVAX : source === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH;
+  const destinationChainId = destination === "AVAX" ? CHAIN_ID_AVAX : destination === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH;
+
   const [blockedInteractions, setBlockedInteraction] = useState(false);
   const { address, isConnected } = useAccount();
   const { data: signer } = useSigner();
@@ -82,7 +79,7 @@ export default function Home() {
       setSwitchingNetwork(false);
     },
     onError: () => {
-      changeSource(true);
+      exchangeSources(true);
       errorToast(
         <div>
           <p>Error changing network.</p>
@@ -97,22 +94,45 @@ export default function Home() {
   const { data, refetch } = useBalance({
     chainId: getEvmChainId(sourceChainId),
     address: address,
-    token: isMainnet
-      ? USDC_ADDRESSES_MAINNET[sourceChainId]
-      : USDC_ADDRESSES_TESTNET[sourceChainId],
+    token: isMainnet ? USDC_ADDRESSES_MAINNET[sourceChainId] : USDC_ADDRESSES_TESTNET[sourceChainId],
   });
 
   // APP STATE HANDLING
-  const changeSource = (failedSwitch = false) => {
+  const exchangeSources = (failedSwitch = false) => {
     if (isConnected) {
       setSwitchingNetwork(true);
     }
     setSource(destination);
+    setDestination(source);
     if (failedSwitch) {
       setSwitchingNetwork(false);
     } else {
       switchNetwork?.(getEvmChainId(destinationChainId));
     }
+  };
+
+  const changeSource = (newSource: IChain, failedSwitch = false) => {
+    if (isConnected) {
+      setSwitchingNetwork(true);
+    }
+
+    if (newSource === destination) {
+      setDestination(source);
+    }
+    setSource(newSource);
+
+    if (failedSwitch) {
+      setSwitchingNetwork(false);
+    } else {
+      switchNetwork?.(getEvmChainId(destinationChainId));
+    }
+  };
+
+  const changeDestination = (newDestination: IChain) => {
+    if (newDestination === source) {
+      setSource(destination);
+    }
+    setDestination(newDestination);
   };
 
   useEffect(() => {
@@ -128,11 +148,7 @@ export default function Home() {
       // TRANSFER
       if (sufficientAllowance) {
         if (+transactionFee > +amount - +destinationGas) {
-          infoToast(
-            "The fee of this transaction is higher than the amount you are trying to receive.",
-            8000,
-            "transactionFee"
-          );
+          infoToast("The fee of this transaction is higher than the amount you are trying to receive.", 8000, "transactionFee");
         } else {
           handleTransferClick();
         }
@@ -180,22 +196,14 @@ export default function Home() {
     let newAmount = a;
 
     if (balance && +newAmount > +balance) {
-      infoToast(
-        "You cannot send more than your balance",
-        3000,
-        "moreThanBalance"
-      );
+      infoToast("You cannot send more than your balance", 3000, "moreThanBalance");
       return;
     }
 
     while (newAmount.startsWith("00")) {
       newAmount = newAmount.substring(1);
     }
-    if (
-      newAmount.length > 1 &&
-      newAmount.startsWith("0") &&
-      !newAmount.startsWith("0.")
-    ) {
+    if (newAmount.length > 1 && newAmount.startsWith("0") && !newAmount.startsWith("0.")) {
       newAmount = newAmount.substring(1);
     }
 
@@ -207,35 +215,15 @@ export default function Home() {
   };
 
   // SMART CONTRACTS CONSTS/STATES
-  const sourceRelayContract = isMainnet
-    ? USDC_RELAYER_MAINNET[sourceChainId]
-    : USDC_RELAYER_TESTNET[sourceChainId];
-
-  const destinationRelayContract = isMainnet
-    ? USDC_RELAYER_MAINNET[destinationChainId]
-    : USDC_RELAYER_TESTNET[destinationChainId];
-
-  const sourceAsset = isMainnet
-    ? USDC_ADDRESSES_MAINNET[sourceChainId]
-    : USDC_ADDRESSES_TESTNET[sourceChainId];
-
-  const destinationAsset = isMainnet
-    ? USDC_ADDRESSES_MAINNET[destinationChainId]
-    : USDC_ADDRESSES_TESTNET[destinationChainId];
-
-  const [maxDestinationGas, setMaxDestinationGas] = useState<bigint | null>(
-    null
-  );
+  const sourceRelayContract = isMainnet ? USDC_RELAYER_MAINNET[sourceChainId] : USDC_RELAYER_TESTNET[sourceChainId];
+  const destinationRelayContract = isMainnet ? USDC_RELAYER_MAINNET[destinationChainId] : USDC_RELAYER_TESTNET[destinationChainId];
+  const sourceAsset = isMainnet ? USDC_ADDRESSES_MAINNET[sourceChainId] : USDC_ADDRESSES_TESTNET[sourceChainId];
+  const destinationAsset = isMainnet ? USDC_ADDRESSES_MAINNET[destinationChainId] : USDC_ADDRESSES_TESTNET[destinationChainId];
+  const [maxDestinationGas, setMaxDestinationGas] = useState<bigint | null>(null);
   const [estimatedGas, setEstimatedGas] = useState<bigint | null>(null);
 
   // GET ALLOWANCE
-  const {
-    isFetchingAllowance,
-    isProcessingApproval,
-    approveAmount,
-    sufficientAllowance,
-    transactionFee,
-  } = useAllowance(
+  const { isFetchingAllowance, isProcessingApproval, approveAmount, sufficientAllowance, transactionFee } = useAllowance(
     signer as Signer,
     sourceChainId,
     destinationChainId,
@@ -271,9 +259,7 @@ export default function Home() {
     const destinationEVMChain = getEvmChainId(destinationChainId);
     if (!destinationEVMChain) return;
 
-    const destinationRPC = isMainnet
-      ? RPCS_MAINNET[destinationEVMChain]
-      : RPCS_TESTNET[destinationEVMChain];
+    const destinationRPC = isMainnet ? RPCS_MAINNET[destinationEVMChain] : RPCS_TESTNET[destinationEVMChain];
     if (!destinationRPC) return;
 
     const provider = new ethers.providers.StaticJsonRpcProvider(destinationRPC);
@@ -298,6 +284,7 @@ export default function Home() {
       cancelled = true;
     };
   }, [destinationRelayContract, destinationAsset, destinationChainId]);
+  ``;
 
   // GET ESTIMATED GAS ON NATIVE TOKEN EFFECT
   useEffect(() => {
@@ -307,9 +294,7 @@ export default function Home() {
     const destinationEVMChain = getEvmChainId(destinationChainId);
     if (!destinationEVMChain) return;
 
-    const destinationRPC = isMainnet
-      ? RPCS_MAINNET[destinationEVMChain]
-      : RPCS_TESTNET[destinationEVMChain];
+    const destinationRPC = isMainnet ? RPCS_MAINNET[destinationEVMChain] : RPCS_TESTNET[destinationEVMChain];
     if (!destinationRPC) return;
 
     const provider = new ethers.providers.StaticJsonRpcProvider(destinationRPC);
@@ -325,10 +310,7 @@ export default function Home() {
         ],
         provider
       );
-      const estimatedSwap = await contract.calculateNativeSwapAmountOut(
-        destinationAsset,
-        debouncedToNativeAmount
-      );
+      const estimatedSwap = await contract.calculateNativeSwapAmountOut(destinationAsset, debouncedToNativeAmount);
       if (cancelled) return;
 
       setEstimatedGas(estimatedSwap.toBigInt());
@@ -336,17 +318,12 @@ export default function Home() {
     return () => {
       cancelled = true;
     };
-  }, [
-    destinationRelayContract,
-    destinationAsset,
-    destinationChainId,
-    debouncedToNativeAmount,
-  ]);
+  }, [destinationRelayContract, destinationAsset, destinationChainId, debouncedToNativeAmount]);
 
   // ACTUAL TOKEN TRANSFERS
   const [isTransfering, setIsTransfering] = useState(false);
 
-  const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
+  // const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
 
   const handleTransferClick = useCallback(async () => {
     if (!signer) return;
@@ -354,19 +331,19 @@ export default function Home() {
     const signerAddress = await signer.getAddress();
     if (!signerAddress) return;
 
-    if (!sourceContract || !sourceAsset) return;
+    if (/* !sourceContract || */ !sourceAsset) return;
 
     const sourceEmitter = CIRCLE_EMITTER_ADDRESSES[sourceChainId];
     if (!sourceEmitter) return;
 
-    const destinationDomain = CIRCLE_DOMAINS[destinationChainId];
-    if (destinationDomain === undefined) return;
+    // const destinationDomain = CIRCLE_DOMAINS[destinationChainId];
+    // if (destinationDomain === undefined) return;
 
     const transferAmountParsed = parseUnits(amount, USDC_DECIMALS);
     if (!transferAmountParsed) return;
 
-    const sourceRelayEmitter = USDC_WH_EMITTER[sourceChainId];
-    if (!sourceRelayContract || !sourceRelayEmitter) return;
+    // const sourceRelayEmitter = USDC_WH_EMITTER[sourceChainId];
+    if (!sourceRelayContract /* || !sourceRelayEmitter */) return;
 
     const contract = new Contract(
       sourceRelayContract,
@@ -402,16 +379,10 @@ export default function Home() {
       const processingSourceFeedback = () => {
         if (processing) {
           infoToast("Waiting for the contract to finish processing", 3000);
-          processingSourceFeedbackTimeout = setTimeout(
-            processingSourceFeedback,
-            15000
-          );
+          processingSourceFeedbackTimeout = setTimeout(processingSourceFeedback, 15000);
         }
       };
-      let processingSourceFeedbackTimeout = setTimeout(
-        processingSourceFeedback,
-        15000
-      );
+      let processingSourceFeedbackTimeout = setTimeout(processingSourceFeedback, 15000);
 
       const receipt = await tx.wait();
       processing = false;
@@ -423,11 +394,7 @@ export default function Home() {
       infoToast(
         <a
           target="_blank"
-          href={
-            source === "AVAX"
-              ? `${AVAX_EXPLORER}${tx.hash}`
-              : `${ETH_EXPLORER}${tx.hash}`
-          }
+          href={source === "AVAX" ? `${AVAX_EXPLORER}${tx.hash}` : source === "ETH" ? `${ETH_EXPLORER}${tx.hash}` : `${ARBITRUM_EXPLORER}${tx.hash}`}
         >
           <p>(2/4) Source transaction confirmed</p>
           <p>Click here to see it on the Explorer</p>
@@ -439,18 +406,14 @@ export default function Home() {
       processing = true;
       const processCircleFeedback = () => {
         if (processing) {
-          infoToast(
-            "Still processing: Waiting for enough block confirmations",
-            4000
-          );
+          infoToast("Still processing: Waiting for enough block confirmations", 4000);
           processFeedbackTimeout = setTimeout(processCircleFeedback, 22500);
         }
       };
       let processFeedbackTimeout = setTimeout(processCircleFeedback, 22500);
 
       // find circle message
-      const [circleBridgeMessage, circleAttestation] =
-        await handleCircleMessageInLogs(receipt.logs, sourceEmitter);
+      const [circleBridgeMessage, circleAttestation] = await handleCircleMessageInLogs(receipt.logs, sourceEmitter);
 
       processing = false;
       clearTimeout(processFeedbackTimeout);
@@ -489,7 +452,9 @@ export default function Home() {
               href={
                 destination === "AVAX"
                   ? `${AVAX_EXPLORER}${destinationTxHash}`
-                  : `${ETH_EXPLORER}${destinationTxHash}`
+                  : destination === "ETH"
+                  ? `${ETH_EXPLORER}${destinationTxHash}`
+                  : `${ARBITRUM_EXPLORER}${destinationTxHash}`
               }
             >
               <p>(4/4) Your transfer was sent successfully!</p>
@@ -505,9 +470,7 @@ export default function Home() {
             waitForRelayRedeem();
           }, 12000);
         } else {
-          infoToast(
-            "We were not able to get the transaction relay status. It should arrive shortly!"
-          );
+          infoToast("We were not able to get the transaction relay status. It should arrive shortly!");
           setIsTransfering(false);
           clearInputs();
         }
@@ -516,9 +479,7 @@ export default function Home() {
     } catch (e) {
       console.error(e);
       setIsTransfering(false);
-      errorToast(
-        "Error: Something went wrong. Check the console for more info"
-      );
+      errorToast("Error: Something went wrong. Check the console for more info");
     } finally {
       await refetch();
     }
@@ -528,7 +489,7 @@ export default function Home() {
     refetch,
     amount,
     signer,
-    sourceContract,
+    // sourceContract,
     sourceAsset,
     sourceChainId,
     destinationChainId,
@@ -537,12 +498,9 @@ export default function Home() {
   ]);
 
   // PRE-PROCESSED VARIABLES
-  const stringifiedEstimatedGas = estimatedGas
-    ? Number(formatUnits(estimatedGas, 18)).toFixed(6)
-    : "";
+  const stringifiedEstimatedGas = estimatedGas ? Number(formatUnits(estimatedGas, 18)).toFixed(6) : "";
 
-  const mainBtnLoading =
-    isProcessingApproval || isTransfering || isFetchingAllowance;
+  const mainBtnLoading = isProcessingApproval || isTransfering || isFetchingAllowance;
 
   const clearInputs = () => {
     setDestinationGas(0);
@@ -553,34 +511,19 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (
-      isProcessingApproval ||
-      isTransfering ||
-      isFetchingAllowance ||
-      switchingNetwork
-    ) {
+    if (isProcessingApproval || isTransfering || isFetchingAllowance || switchingNetwork) {
       setBlockedInteraction(true);
     } else {
       setBlockedInteraction(false);
     }
-  }, [
-    switchingNetwork,
-    isProcessingApproval,
-    isTransfering,
-    isFetchingAllowance,
-  ]);
+  }, [switchingNetwork, isProcessingApproval, isTransfering, isFetchingAllowance]);
 
   return (
     <main className={`${styles.main} ${poppins.className}`}>
       <header className={styles.header}>
         <div className={styles.gradBg} />
         <div className={styles.logo}>
-          <Image
-            alt="Portal"
-            width={155}
-            height={68}
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/portal.svg`}
-          />
+          <Image alt="Portal" width={155} height={68} src={`${process.env.NEXT_PUBLIC_BASE_PATH}/portal.svg`} />
         </div>
         <div className={styles.headerInteractions}>
           <div className={styles.headerLink}>
@@ -606,16 +549,9 @@ export default function Home() {
           <span>USDC Bridge</span>
         </h2>
         <h3 className={styles.subtitle}>
-          <span>
-            Bridge and send native USDC between Ethereum and Avalanche through
-            the official{" "}
-          </span>
+          <span>Bridge and send native USDC between Ethereum and Avalanche through the official </span>
           <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
-            <a
-              target="__blank"
-              href="https://developers.circle.com/stablecoin/docs"
-              className={styles.CCTP}
-            >
+            <a target="__blank" href="https://developers.circle.com/stablecoin/docs" className={styles.CCTP}>
               CCTP
             </a>
           </Tooltip>
@@ -626,39 +562,24 @@ export default function Home() {
           <div className={styles.fromToContainer}>
             <div className={styles.chain}>
               <div className={styles.boxText}>From</div>
-              <Chain
-                source={source}
-                changeSource={() => changeSource()}
-                initial="AVAX"
-              />
+              <Chain selected={source} changeChain={(newSource) => changeSource(newSource)} />
             </div>
 
-            <ExchangeChains onClick={() => changeSource()} source={source} />
+            <ExchangeChains onClick={exchangeSources} source={source} />
 
             <div className={styles.chain}>
               <div className={styles.boxText}>To</div>
-              <Chain
-                source={source}
-                changeSource={() => changeSource()}
-                initial="ETH"
-              />
+              <Chain selected={destination} changeChain={(newDestination) => changeDestination(newDestination)} />
             </div>
           </div>
 
           <div className={styles.boxText}>Amount</div>
-          <USDCInput
-            value={amount}
-            setValue={changeAmount}
-            maxDecimals={AMOUNT_DECIMALS}
-          />
+          <USDCInput value={amount} setValue={changeAmount} maxDecimals={AMOUNT_DECIMALS} />
 
           {balance && (
             <div className={styles.balance}>
               <span className={styles.balanceTxt}>Balance {balance}</span>
-              <span
-                onClick={() => changeAmount(balance)}
-                className={styles.maxTxt}
-              >
+              <span onClick={() => changeAmount(balance)} className={styles.maxTxt}>
                 MAX
               </span>
             </div>
@@ -685,13 +606,7 @@ export default function Home() {
 
           <button
             onClick={() => !mainBtnLoading && handleBoxWallet()}
-            className={`${
-              mainBtnLoading
-                ? `${styles.btnLoading} ${
-                    isTransfering ? styles.txLoading : ""
-                  }`
-                : ""
-            }`}
+            className={`${mainBtnLoading ? `${styles.btnLoading} ${isTransfering ? styles.txLoading : ""}` : ""}`}
           >
             {mainBtnLoading && <Loader size="m" />}
             {!mainBtnLoading && boxWalletTxt}
@@ -700,52 +615,21 @@ export default function Home() {
 
         <div className={styles.poweredBy}>
           <span>Powered by </span>
-          <a
-            href="https://developers.circle.com/stablecoin/docs/cctp-faq"
-            target="_blank"
-          >
-            <Image
-              alt="Powered by Circle"
-              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/circle.png`}
-              width={120}
-              height={30}
-            />
+          <a href="https://developers.circle.com/stablecoin/docs/cctp-faq" target="_blank">
+            <Image alt="Powered by Circle" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/circle.png`} width={120} height={30} />
           </a>
           <span> & </span>
           <a href="https://wormhole.com/" target="_blank">
-            <Image
-              alt="Powered by Wormhole"
-              src={`${process.env.NEXT_PUBLIC_BASE_PATH}/wormhole.png`}
-              width={200}
-              height={45}
-            />
+            <Image alt="Powered by Wormhole" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/wormhole.png`} width={200} height={45} />
           </a>
         </div>
       </div>
       <footer>
-        <a
-          className={styles.tweet}
-          href="https://twitter.com/wormholecrypto"
-          target="_blank"
-        >
-          <Image
-            alt="Twitter logo"
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/twitter.png`}
-            width={20}
-            height={20}
-          />
+        <a className={styles.tweet} href="https://twitter.com/wormholecrypto" target="_blank">
+          <Image alt="Twitter logo" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/twitter.png`} width={20} height={20} />
         </a>
-        <a
-          className={styles.tweet}
-          href="https://discord.gg/wormholecrypto"
-          target="_blank"
-        >
-          <Image
-            alt="Discord logo"
-            src={`${process.env.NEXT_PUBLIC_BASE_PATH}/discord.svg`}
-            width={20}
-            height={20}
-          />
+        <a className={styles.tweet} href="https://discord.gg/wormholecrypto" target="_blank">
+          <Image alt="Discord logo" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/discord.svg`} width={20} height={20} />
         </a>
         <a href="mailto:hello@stable.io" target="_blank">
           Contact Us
