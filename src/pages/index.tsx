@@ -585,7 +585,7 @@ export default function Home() {
           <span>USDC Bridge</span>
         </h2>
         <h3 className={styles.subtitle}>
-          <span>Bridge and send native USDC between Ethereum and Avalanche through the official </span>
+          <span>Bridge and send native USDC between Ethereum, Avalanche and Arbitrum through the official </span>
           <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
             <a target="__blank" href="https://developers.circle.com/stablecoin/docs" className={styles.CCTP}>
               CCTP
