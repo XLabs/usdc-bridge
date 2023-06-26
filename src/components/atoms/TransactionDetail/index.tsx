@@ -1,4 +1,4 @@
-import { IChain } from "@/constants";
+import { IChain, getChainNativeTokenName } from "@/constants";
 import styles from "./TransactionDetail.module.scss";
 
 type Props = {
@@ -9,13 +9,7 @@ type Props = {
   transactionFee: string;
 };
 
-const TransactionDetail = ({
-  amount,
-  estimatedGas,
-  destination,
-  destinationGas,
-  transactionFee,
-}: Props) => {
+const TransactionDetail = ({ amount, estimatedGas, destination, destinationGas, transactionFee }: Props) => {
   const USDCamount = (+amount - +destinationGas).toFixed(5);
 
   return (
@@ -26,13 +20,11 @@ const TransactionDetail = ({
       </div>
       <div className={styles.infoLine}>
         <span>Est. Destination Gas</span>
-        <span>{estimatedGas ? `≈${estimatedGas} ${destination}` : "..."}</span>
+        <span>{estimatedGas ? `≈${estimatedGas} ${getChainNativeTokenName(destination)}` : "..."}</span>
       </div>
       <div className={styles.infoLine}>
         <span>Relay Cost</span>
-        <span>
-          {transactionFee === "" ? "0.00" : "≈" + transactionFee} USDC
-        </span>
+        <span>{transactionFee === "" ? "0.00" : "≈" + transactionFee} USDC</span>
       </div>
     </div>
   );

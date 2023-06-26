@@ -60,11 +60,6 @@ export default function useAllowance(
       );
 
       (async () => {
-        console.log("por ejecutar lo que falla", {
-          destinationChainId,
-          tokenAddress,
-          switchingNetwork,
-        });
         const getFeeTx: BigNumber = await contract.relayerFee(destinationChainId, tokenAddress);
 
         if (!cancelled) {

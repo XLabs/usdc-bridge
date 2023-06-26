@@ -62,6 +62,8 @@ export const RPCS_MAINNET = {
   [ARBITRUM_NETWORK_CHAIN_ID_MAINNET]: "https://rpc.ankr.com/arbitrum",
 };
 
+export const getChainNativeTokenName = (chain: IChain) => (chain === "ARBITRUM" ? "ETH" : chain);
+
 export const getEvmChainId = (chainId: ChainId) =>
   chainId === CHAIN_ID_ETH
     ? isMainnet
@@ -82,9 +84,7 @@ export const WEBAPP_URL = process.env.NEXT_APP_PUBLIC_URL || "/usdc-bridge";
 export const CIRCLE_EMITTER_ADDRESSES: { [key in ChainId]?: string } = {
   [CHAIN_ID_ETH]: isMainnet ? "0x0a992d191DEeC32aFe36203Ad87D7d289a738F81" : "0x26413e8157CD32011E726065a5462e97dD4d03D9",
   [CHAIN_ID_AVAX]: isMainnet ? "0x8186359aF5F57FbB40c6b14A588d2A59C0C29880" : "0xa9fB1b3009DCb79E2fe346c16a604B8Fa8aE0a79",
-  [CHAIN_ID_ARBITRUM]: isMainnet
-    ? "" // TODO TODO TODO TODO
-    : "0x109bc137cb64eab7c0b1dddd1edf341467dc2d35",
+  [CHAIN_ID_ARBITRUM]: isMainnet ? "0xC30362313FBBA5cf9163F0bb16a0e01f01A896ca" : "0x109bc137cb64eab7c0b1dddd1edf341467dc2d35",
 };
 
 export const USDC_RELAYER_TESTNET: { [key in ChainId]?: string } = {

@@ -68,14 +68,6 @@ export default function Home() {
         </div>
       );
     },
-    onSuccess: (data) => {
-      console.log("data puta");
-      console.log({
-        data,
-        address,
-        isConnected,
-      });
-    },
     connector: new InjectedConnector({
       chains: chainList,
     }),
@@ -83,7 +75,6 @@ export default function Home() {
   const [switchingNetwork, setSwitchingNetwork] = useState(false);
   const { switchNetwork } = useSwitchNetwork({
     onSuccess: () => {
-      console.log("success switchinggg");
       setSwitchingNetwork(false);
     },
     onError: () => {
@@ -112,13 +103,6 @@ export default function Home() {
     }
 
     const newSource = destination;
-    console.log({
-      source,
-      destination,
-      newSource,
-      destinationChainId,
-      evmChain: getEvmChainId(destinationChainId),
-    });
 
     setDestination(source);
     setSource(newSource);
@@ -126,7 +110,6 @@ export default function Home() {
     if (failedSwitch) {
       setSwitchingNetwork(false);
     } else {
-      console.log("about to switch");
       switchNetwork?.(getEvmChainId(destinationChainId));
     }
   };
@@ -146,7 +129,11 @@ export default function Home() {
 
   const changeDestination = (newDestination: IChain) => {
     if (newDestination === source) {
+      if (isConnected) {
+        setSwitchingNetwork(true);
+      }
       setSource(destination);
+      switchNetwork?.(getEvmChainId(getChainId(destination)));
     }
     setDestination(newDestination);
   };
@@ -160,10 +147,6 @@ export default function Home() {
   const handleBoxWallet = () => {
     // CONNECT WALLET
     if (!isConnected) {
-      console.log("about to connect...", {
-        sourceChainId,
-        evmChainId: getEvmChainId(sourceChainId),
-      });
       connect({ chainId: getEvmChainId(sourceChainId) });
     } else {
       // TRANSFER
@@ -455,7 +438,6 @@ export default function Home() {
       let attempts = 0;
       let vaaInfo: any = false;
       const relayResponse = async () => {
-        console.log("vaa info?", vaaInfo);
         if (!vaaInfo) {
           vaaInfo = await axios
             .get(`${VAA_URL}${tx.hash}`)
@@ -477,21 +459,19 @@ export default function Home() {
             .catch((error) => {
               console.log("Error getting relayer info for", tx.hash);
               console.error(error);
-              if (attempts > 2) return "RELAYER_ERROR";
+              if (attempts > 3) return "RELAYER_ERROR";
               return "RELAYER_WAIT";
             });
         } else {
           vaaInfo = false;
         }
 
-        console.log("RESPPPPPPP", resp);
         return resp;
       };
 
       // TOAST FEEDBACK RELAYER
       const waitForRelayRedeem = async () => {
         const response = await relayResponse();
-        console.log("response", response);
 
         if (response.data?.data?.status === "redeemed") {
           const destinationTxHash = response.data.data.to.txHash;
@@ -661,20 +641,6 @@ export default function Home() {
           />
 
           <button
-            // onClick={() => {
-            //   (async () => {
-            //     fetch(
-            //       "https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.dev.stable.io/v1/relays?test=hola0&txHash=0xef1e512da377f8498f74aedb74e9e3ace21edff709c9f772c9736939214a3fad"
-            //     )
-            //       .then(async (a) => {
-            //         const b = await a.json();
-            //         console.log("resp", b);
-            //       })
-            //       .catch((e) => {
-            //         console.log("e", e);
-            //       });
-            //   })();
-            // }}
             onClick={() => !mainBtnLoading && handleBoxWallet()}
             className={`${mainBtnLoading ? `${styles.btnLoading} ${isTransfering ? styles.txLoading : ""}` : ""}`}
           >
