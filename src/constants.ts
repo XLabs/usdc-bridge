@@ -24,7 +24,7 @@ export const ARBITRUM_EXPLORER = isMainnet ? "https://arbiscan.io/tx/" : "https:
 
 export const getRelayFeedbackUrl = (att: number) => {
   if (typeof window !== "undefined") {
-    if (window.location.href.includes("localhost")) {
+    if (window.location.href.includes("localhost") || window.location.href.includes("pages.dev")) {
       return isMainnet
         ? `https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.stable.io/v1/relays?test=hola${att}&txHash=`
         : `https://nextjs-cors-anywhere.vercel.app/api?endpoint=https://relayer.dev.stable.io/v1/relays?test=hola${att}&txHash=`;
