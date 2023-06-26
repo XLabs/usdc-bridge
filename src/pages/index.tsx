@@ -30,7 +30,7 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import { Contract, ethers, Signer } from "ethers";
-import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH, CONTRACTS, coalesceChainName, parseSequenceFromLogEth } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
@@ -48,8 +48,8 @@ const chainList = isMainnet ? [avalanche, mainnet, arbitrum] : [avalancheFuji, g
 const getChainId = (chain: IChain) => (chain === "AVAX" ? CHAIN_ID_AVAX : chain === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH);
 
 export default function Home() {
-  const [source, setSource] = useState<IChain>("AVAX");
-  const [destination, setDestination] = useState<IChain>("ETH");
+  const [source, setSource] = useState<IChain>("ETH");
+  const [destination, setDestination] = useState<IChain>("ARBITRUM");
 
   const sourceChainId = getChainId(source);
   const destinationChainId = getChainId(destination);
@@ -328,27 +328,21 @@ export default function Home() {
   // ACTUAL TOKEN TRANSFERS
   const [isTransfering, setIsTransfering] = useState(false);
 
-  // const sourceContract = CIRCLE_BRIDGE_ADDRESSES[sourceChainId];
-
   const handleTransferClick = useCallback(async () => {
     if (!signer) return;
 
     const signerAddress = await signer.getAddress();
     if (!signerAddress) return;
 
-    if (/* !sourceContract || */ !sourceAsset) return;
+    if (!sourceAsset) return;
 
     const sourceEmitter = CIRCLE_EMITTER_ADDRESSES[sourceChainId];
     if (!sourceEmitter) return;
 
-    // const destinationDomain = CIRCLE_DOMAINS[destinationChainId];
-    // if (destinationDomain === undefined) return;
-
     const transferAmountParsed = parseUnits(amount, USDC_DECIMALS);
     if (!transferAmountParsed) return;
 
-    // const sourceRelayEmitter = USDC_WH_EMITTER[sourceChainId];
-    if (!sourceRelayContract /* || !sourceRelayEmitter */) return;
+    if (!sourceRelayContract) return;
 
     const contract = new Contract(
       sourceRelayContract,
@@ -454,12 +448,15 @@ export default function Home() {
           resp = await axios
             .get(`${getRelayFeedbackUrl(attempts)}${tx.hash}`)
             .then((response: any) => {
+              attempts++;
               return response;
             })
             .catch((error) => {
               console.log("Error getting relayer info for", tx.hash);
               console.error(error);
-              if (attempts > 3) return "RELAYER_ERROR";
+              if (attempts > 5) return "RELAYER_ERROR";
+
+              attempts++;
               return "RELAYER_WAIT";
             });
         } else {
@@ -504,7 +501,6 @@ export default function Home() {
           setIsTransfering(false);
           clearInputs();
         } else {
-          attempts++;
           infoToast("Waiting for the relay to happen...", 4000);
           setTimeout(() => {
             waitForRelayRedeem();
@@ -519,19 +515,7 @@ export default function Home() {
     } finally {
       await refetch();
     }
-  }, [
-    source,
-    destination,
-    refetch,
-    amount,
-    signer,
-    // sourceContract,
-    sourceAsset,
-    sourceChainId,
-    destinationChainId,
-    sourceRelayContract,
-    toNativeAmount,
-  ]);
+  }, [source, destination, refetch, amount, signer, sourceAsset, sourceChainId, destinationChainId, sourceRelayContract, toNativeAmount]);
 
   // PRE-PROCESSED VARIABLES
   const stringifiedEstimatedGas = estimatedGas ? Number(formatUnits(estimatedGas, 18)).toFixed(6) : "";
