@@ -1,4 +1,4 @@
-import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH, ChainId, getEmitterAddressEth } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH, ChainId } from "@certusone/wormhole-sdk";
 
 export type IChain = "AVAX" | "ETH" | "ARBITRUM";
 export const isMainnet = process.env.NEXT_PUBLIC_NETWORK === "mainnet";

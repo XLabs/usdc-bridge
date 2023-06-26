@@ -2,7 +2,7 @@ import styles from "./Chain.module.scss";
 import ChevronDown from "@/components/atoms/ChevronDownIcon.tsx";
 import { IChain } from "@/constants";
 import Image from "next/image";
-import { FocusEvent, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   selected: IChain;
@@ -49,9 +49,6 @@ const Chain = ({ selected, changeChain }: Props) => {
       setImgSrc(getChainImg(selected));
       setTxt(getChainTxt(selected));
 
-      // setOptionTxt(isAVAX ? otherTxt : initialTxt);
-      // setOptionImgSrc(isAVAX ? otherSrc : initialSrc);
-
       setOpacity(1);
     }, 200);
   }, [selected]);
@@ -66,7 +63,6 @@ const Chain = ({ selected, changeChain }: Props) => {
       }, 200);
     } else {
       setTimeout(() => {
-        console.log("document.activeElement", document.activeElement);
         setOpenMenu(false);
       }, 200);
     }

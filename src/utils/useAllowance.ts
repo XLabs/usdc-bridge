@@ -11,7 +11,8 @@ export default function useAllowance(
   destinationChainId: 2 | 6 | 23,
   tokenAddress: string,
   transferAmount: string,
-  sourceRelayContract: string
+  sourceRelayContract: string,
+  switchingNetwork: boolean
 ) {
   const [allowance, setAllowance] = useState<string | null>(null);
   const [transactionFee, setTransactionFee] = useState("");
@@ -23,7 +24,7 @@ export default function useAllowance(
   useEffect(() => {
     let cancelled = false;
 
-    if (tokenAddress && signer && sourceRelayContract && !isProcessingApproval) {
+    if (tokenAddress && signer && sourceRelayContract && !isProcessingApproval && !switchingNetwork) {
       setIsFetchingAllowance(true);
 
       // Getting transaction fee
@@ -59,6 +60,11 @@ export default function useAllowance(
       );
 
       (async () => {
+        console.log("por ejecutar lo que falla", {
+          destinationChainId,
+          tokenAddress,
+          switchingNetwork,
+        });
         const getFeeTx: BigNumber = await contract.relayerFee(destinationChainId, tokenAddress);
 
         if (!cancelled) {
@@ -89,7 +95,7 @@ export default function useAllowance(
     return () => {
       cancelled = true;
     };
-  }, [destinationChainId, sourceChainId, tokenAddress, isProcessingApproval, sourceRelayContract, signer]);
+  }, [destinationChainId, sourceChainId, tokenAddress, isProcessingApproval, sourceRelayContract, signer, switchingNetwork]);
 
   const approveAmount: (amount: string) => void = useMemo(() => {
     return (amount: string) => {

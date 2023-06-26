@@ -30,7 +30,7 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import { Contract, ethers, Signer } from "ethers";
-import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH, CONTRACTS, coalesceChainName, parseSequenceFromLogEth } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
@@ -43,6 +43,7 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600"],
   subsets: ["latin"],
 });
+const VAA_URL = isMainnet ? "https://api.wormscan.io/api/v1/vaas?txHash=" : "https://api.testnet.wormscan.io/api/v1/vaas?txHash=";
 const chainList = isMainnet ? [avalanche, mainnet, arbitrum] : [avalancheFuji, goerli, arbitrumGoerli];
 const getChainId = (chain: IChain) => (chain === "AVAX" ? CHAIN_ID_AVAX : chain === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH);
 
@@ -82,6 +83,7 @@ export default function Home() {
   const [switchingNetwork, setSwitchingNetwork] = useState(false);
   const { switchNetwork } = useSwitchNetwork({
     onSuccess: () => {
+      console.log("success switchinggg");
       setSwitchingNetwork(false);
     },
     onError: () => {
@@ -129,7 +131,7 @@ export default function Home() {
     }
   };
 
-  const changeSource = (newSource: IChain, failedSwitch = false) => {
+  const changeSource = (newSource: IChain) => {
     if (isConnected) {
       setSwitchingNetwork(true);
     }
@@ -137,13 +139,9 @@ export default function Home() {
     if (newSource === destination) {
       setDestination(source);
     }
-    setSource(newSource);
 
-    if (failedSwitch) {
-      setSwitchingNetwork(false);
-    } else {
-      switchNetwork?.(getEvmChainId(getChainId(newSource)));
-    }
+    setSource(newSource);
+    switchNetwork?.(getEvmChainId(getChainId(newSource)));
   };
 
   const changeDestination = (newDestination: IChain) => {
@@ -252,7 +250,8 @@ export default function Home() {
     destinationChainId,
     sourceAsset!,
     amount,
-    sourceRelayContract!
+    sourceRelayContract!,
+    switchingNetwork
   );
 
   // CHANGE BUTTON TEXTS WHEN CHANGING WALLETS
@@ -446,19 +445,47 @@ export default function Home() {
         throw new Error(`Error parsing receipt for ${tx.hash}`);
       }
 
+      console.log({
+        circleBridgeMessage,
+        circleAttestation,
+        receipt,
+        tx,
+      });
+
       let attempts = 0;
+      let vaaInfo: any = false;
       const relayResponse = async () => {
-        return await axios
-          .get(`${getRelayFeedbackUrl(attempts)}${tx.hash}`)
-          .then((response: any) => {
-            return response;
-          })
-          .catch((error) => {
-            console.log("Error getting relayer info for", tx.hash);
-            console.error(error);
-            if (attempts > 0) return "ERRORED";
-            return "FIRST_ERR";
-          });
+        console.log("vaa info?", vaaInfo);
+        if (!vaaInfo) {
+          vaaInfo = await axios
+            .get(`${VAA_URL}${tx.hash}`)
+            .then((res) => res)
+            .catch((err) => {
+              return false;
+            });
+        }
+
+        let resp: any = "FINALITY";
+        if (vaaInfo.data?.data[0]?.vaa) {
+          console.log("VAA:", vaaInfo?.data?.data[0]?.vaa);
+
+          resp = await axios
+            .get(`${getRelayFeedbackUrl(attempts)}${tx.hash}`)
+            .then((response: any) => {
+              return response;
+            })
+            .catch((error) => {
+              console.log("Error getting relayer info for", tx.hash);
+              console.error(error);
+              if (attempts > 2) return "RELAYER_ERROR";
+              return "RELAYER_WAIT";
+            });
+        } else {
+          vaaInfo = false;
+        }
+
+        console.log("RESPPPPPPP", resp);
+        return resp;
       };
 
       // TOAST FEEDBACK RELAYER
@@ -484,19 +511,24 @@ export default function Home() {
               <p>(4/4) Your transfer was sent successfully!</p>
               <p>Click here to see the transaction on your destination</p>
             </a>,
-            11000
+            20000
           );
           clearInputs();
-        } else if (response !== "ERRORED") {
+        } else if (response === "FINALITY") {
+          infoToast("Waiting for transaction finality...", 4000);
+          setTimeout(() => {
+            waitForRelayRedeem();
+          }, 20000);
+        } else if (response === "RELAYER_ERROR") {
+          infoToast("We were not able to get the transaction relay status. It should arrive shortly!");
+          setIsTransfering(false);
+          clearInputs();
+        } else {
           attempts++;
           infoToast("Waiting for the relay to happen...", 4000);
           setTimeout(() => {
             waitForRelayRedeem();
           }, 12000);
-        } else {
-          infoToast("We were not able to get the transaction relay status. It should arrive shortly!");
-          setIsTransfering(false);
-          clearInputs();
         }
       };
       waitForRelayRedeem();
@@ -589,7 +621,7 @@ export default function Home() {
               <Chain selected={source} changeChain={(newSource) => changeSource(newSource)} />
             </div>
 
-            <ExchangeChains onClick={exchangeSources} source={source} />
+            <ExchangeChains onClick={() => exchangeSources(false)} source={source} />
 
             <div className={styles.chain}>
               <div className={styles.boxText}>To</div>
