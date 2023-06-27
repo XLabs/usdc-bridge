@@ -2,7 +2,7 @@ import Tooltip from "@/components/atoms/Tooltip";
 import styles from "./DestinationGas.module.scss";
 import ReactSlider from "react-slider";
 import Loader from "@/components/atoms/Loader";
-import { IChain } from "@/constants";
+import { IChain, getChainNativeTokenName } from "@/constants";
 
 type Props = {
   gas: number;
@@ -13,14 +13,7 @@ type Props = {
   sliderPercentage: number;
 };
 
-const DestinationGas = ({
-  gas,
-  onChange,
-  maxDestinationGas,
-  estimatedGas,
-  destination,
-  sliderPercentage,
-}: Props) => {
+const DestinationGas = ({ gas, onChange, maxDestinationGas, estimatedGas, destination, sliderPercentage }: Props) => {
   return (
     <>
       <div className={styles.gasContainer}>
@@ -50,7 +43,7 @@ const DestinationGas = ({
           <span>{gas}</span>
         </div>
         <div className={styles.gasAmount}>
-          <span className={styles.gasCoin}>{destination}</span>
+          <span className={styles.gasCoin}>{getChainNativeTokenName(destination)}</span>
           <span>{estimatedGas ? `≈ ${estimatedGas}` : "..."}</span>
         </div>
       </div>

@@ -2,19 +2,12 @@ import { isMainnet } from "@/constants";
 import axios, { AxiosResponse } from "axios";
 import { ethers } from "ethers";
 
-const CIRCLE_ATTESTATION = isMainnet
-  ? "https://iris-api.circle.com/attestations/"
-  : "https://iris-api-sandbox.circle.com/attestations/";
+const CIRCLE_ATTESTATION = isMainnet ? "https://iris-api.circle.com/attestations/" : "https://iris-api-sandbox.circle.com/attestations/";
 
-export const findCircleMessageInLogs = (
-  logs: ethers.providers.Log[],
-  circleEmitterAddress: string
-): string | null => {
+export const findCircleMessageInLogs = (logs: ethers.providers.Log[], circleEmitterAddress: string): string | null => {
   for (const log of logs) {
     if (log.address.toLowerCase() === circleEmitterAddress.toLowerCase()) {
-      const messageSentIface = new ethers.utils.Interface([
-        "event MessageSent(bytes message)",
-      ]);
+      const messageSentIface = new ethers.utils.Interface(["event MessageSent(bytes message)"]);
       return messageSentIface.parseLog(log).args.message as string;
     }
   }
@@ -35,11 +28,7 @@ export async function getCircleAttestation(messageHash: ethers.BytesLike) {
         return null;
       })
       .then(async (response: AxiosResponse | null) => {
-        if (
-          response !== null &&
-          response.status === 200 &&
-          response.data.status === "complete"
-        ) {
+        if (response !== null && response.status === 200 && response.data.status === "complete") {
           return response.data.attestation as string;
         }
 
@@ -50,7 +39,7 @@ export async function getCircleAttestation(messageHash: ethers.BytesLike) {
       return response;
     }
 
-    await sleep(3500);
+    await sleep(6500);
   }
 }
 
