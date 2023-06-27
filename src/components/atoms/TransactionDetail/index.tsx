@@ -11,6 +11,7 @@ type Props = {
 
 const TransactionDetail = ({ amount, estimatedGas, destination, destinationGas, transactionFee }: Props) => {
   const USDCamount = (+amount - +destinationGas - +transactionFee).toFixed(5);
+  const USDCamountToShow = Number(USDCamount) < 0 ? 0 : USDCamount;
 
   return (
     <div className={styles.transactionDetail}>
@@ -24,7 +25,7 @@ const TransactionDetail = ({ amount, estimatedGas, destination, destinationGas, 
       </div>
       <div className={styles.infoLine}>
         <span>You receive</span>
-        <span>{`${USDCamount} USDC`}</span>
+        <span>{`${USDCamountToShow} USDC`}</span>
       </div>
     </div>
   );
