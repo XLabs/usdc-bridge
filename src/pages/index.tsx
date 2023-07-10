@@ -651,9 +651,6 @@ export default function Home() {
         <a className={styles.tweet} href="https://discord.gg/wormholecrypto" target="_blank">
           <Image alt="Discord logo" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/discord.svg`} width={20} height={20} />
         </a>
-        <a href="mailto:hello@stable.io" target="_blank">
-          Contact Us
-        </a>
       </footer>
 
       <div className={styles.gradients}>
