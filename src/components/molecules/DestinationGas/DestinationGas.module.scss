@@ -9,17 +9,8 @@
 
   .question {
     margin-left: 4px;
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 5px;
-    padding-right: 4px;
-
-    border-radius: 50%;
-    font-size: 12px;
-    font-weight: 800;
-    border: 1px solid rgb(var(--foreground-rgb));
-
     cursor: pointer;
+    transform: translateY(3px);
     user-select: none;
   }
 

@@ -1,5 +1,7 @@
 import { IChain, getChainNativeTokenName } from "@/constants";
 import styles from "./TransactionDetail.module.scss";
+import Tooltip from "../Tooltip";
+import Image from "next/image";
 
 type Props = {
   amount: string;
@@ -20,7 +22,16 @@ const TransactionDetail = ({ amount, estimatedGas, destination, destinationGas, 
         <span>{estimatedGas ? `≈${estimatedGas} ${getChainNativeTokenName(destination)}` : "..."}</span>
       </div>
       <div className={styles.infoLine}>
-        <span>Relay Cost</span>
+        <div>
+          <span>Relay Cost</span>
+          <Tooltip
+            text={`This is used to cover the ${getChainNativeTokenName(
+              destination
+            )} transaction gas costs to transfer funds to the destination address.`}
+          >
+            <Image className={styles.question} src={`${process.env.NEXT_PUBLIC_BASE_PATH}/question_white.png`} width={16} height={17} alt="tooltip" />
+          </Tooltip>
+        </div>
         <span>{transactionFee === "" ? "0.00" : "≈" + transactionFee} USDC</span>
       </div>
       <div className={styles.infoLine}>

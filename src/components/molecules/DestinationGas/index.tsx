@@ -3,6 +3,7 @@ import styles from "./DestinationGas.module.scss";
 import ReactSlider from "react-slider";
 import Loader from "@/components/atoms/Loader";
 import { IChain, getChainNativeTokenName } from "@/constants";
+import Image from "next/image";
 
 type Props = {
   gas: number;
@@ -20,7 +21,7 @@ const DestinationGas = ({ gas, onChange, maxDestinationGas, estimatedGas, destin
         <div className={styles.gasTitle}>
           <span>Add destination gas</span>
           <Tooltip text="Convert some USDC to ETH or AVAX and use it as gas to pay for transaction fees on the destination network.">
-            <span className={styles.question}>?</span>
+            <Image className={styles.question} src={`${process.env.NEXT_PUBLIC_BASE_PATH}/question_white.png`} width={16} height={17} alt="tooltip" />
           </Tooltip>
         </div>
 

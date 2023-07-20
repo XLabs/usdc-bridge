@@ -8,4 +8,11 @@
     justify-content: space-between;
     margin: 0.5vh 0px;
   }
+
+  .question {
+    margin-left: 6px;
+    cursor: pointer;
+    user-select: none;
+    transform: translateY(2px);
+  }
 }
