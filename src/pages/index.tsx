@@ -60,13 +60,30 @@ export default function Home() {
   const { connect } = useConnect({
     onError: (err) => {
       console.error(err);
-      errorToast(
-        <div>
-          <p>Error: Wallet not found</p>
-          <p>(Do you have a wallet installed?)</p>
-          <p>(Did you approve the connection?)</p>
-        </div>
-      );
+      if (err.name === "ConnectorNotFoundError") {
+        errorToast(
+          <div style={{ cursor: "pointer" }} onClick={() => window.open("https://metamask.app.link/dapp/portalbridge.com/usdc-bridge")}>
+            <p>Wallet not found</p>
+            <p>Press here to go download Metamask</p>
+          </div>,
+          8000
+        );
+      } else if (err.name === "UserRejectedRequestError") {
+        errorToast(
+          <div>
+            <p>Error: Wallet not found</p>
+            <p>(Did you approve the connection?)</p>
+          </div>
+        );
+      } else {
+        errorToast(
+          <div>
+            <p>Error: Something went wrong</p>
+            <p>(Do you have a wallet installed?)</p>
+            <p>(Did you approve the connection?)</p>
+          </div>
+        );
+      }
     },
     connector: new InjectedConnector({
       chains: chainList,
