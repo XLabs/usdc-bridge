@@ -555,6 +555,11 @@ export default function Home() {
     }
   }, [switchingNetwork, isProcessingApproval, isTransfering, isFetchingAllowance]);
 
+  // To show Optimism option on SEPT 4th 2023
+  const subtitle =
+    new Date() < new Date(2023, 8, 4) ?
+    "Bridge and send native USDC between Ethereum, Avalanche and Arbitrum through the official " :
+    "Bridge and send native USDC between Ethereum, Avalanche, Arbitrum and Optimism through the official ";
   return (
     <main className={`${styles.main} ${poppins.className}`}>
       <header className={styles.header}>
@@ -586,7 +591,7 @@ export default function Home() {
           <span>USDC Bridge</span>
         </h2>
         <h3 className={styles.subtitle}>
-          <span>Bridge and send native USDC between Ethereum, Avalanche and Arbitrum through the official </span>
+          <span>{subtitle} </span>
           <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
             <a target="__blank" href="https://developers.circle.com/stablecoin/docs" className={styles.CCTP}>
               CCTP
