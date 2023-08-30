@@ -15,12 +15,15 @@ type Props = {
 };
 
 const DestinationGas = ({ gas, onChange, maxDestinationGas, estimatedGas, destination, sliderPercentage }: Props) => {
+  const tooltipText =  new Date() < new Date(2023, 8, 4) ?
+  "Convert some USDC to ETH, AVAX or ARB and use it as gas to pay for transaction fees on the destination network." :
+  "Convert some USDC to ETH, AVAX, OP or ARB and use it as gas to pay for transaction fees on the destination network.";
   return (
     <>
       <div className={styles.gasContainer}>
         <div className={styles.gasTitle}>
           <span>Add destination gas</span>
-          <Tooltip text="Convert some USDC to ETH, AVAX or ARB and use it as gas to pay for transaction fees on the destination network.">
+          <Tooltip text={tooltipText}>
             <Image className={styles.question} src={`${process.env.NEXT_PUBLIC_BASE_PATH}/question_white.png`} width={16} height={17} alt="tooltip" />
           </Tooltip>
         </div>
