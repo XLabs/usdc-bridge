@@ -557,9 +557,10 @@ export default function Home() {
 
   // To show Optimism option on SEPT 4th 2023
   const subtitle =
-    new Date() < new Date(2023, 8, 4) ?
-    "Bridge and send native USDC between Ethereum, Avalanche and Arbitrum through the official " :
-    "Bridge and send native USDC between Ethereum, Avalanche, Arbitrum and Optimism through the official ";
+    new Date() < new Date(2023, 8, 4)
+      ? "Bridge and send native USDC between Ethereum, Avalanche and Arbitrum through the official "
+      : "Bridge and send native USDC between Ethereum, Avalanche, Arbitrum and Optimism through the official ";
+
   return (
     <main className={`${styles.main} ${poppins.className}`}>
       <header className={styles.header}>
@@ -569,16 +570,23 @@ export default function Home() {
         </div>
         <div className={styles.headerInteractions}>
           <div className={styles.headerLink}>
-            <a href="https://www.portalbridge.com/#/transfer">Token Bridge</a>
+            <a href="https://portalbridge.com/#/transfer">Token Bridge</a>
           </div>
           <div className={styles.headerLink}>
-            <a href="https://www.portalbridge.com/usdc-bridge">USDC Bridge</a>
+            <a href="https://portalbridge.com/usdc-bridge">USDC</a>
           </div>
           <div className={styles.headerLink}>
-            <a href="https://www.portalbridge.com/sui">Sui Bridge</a>
+            <a href="https://portalbridge.com/sui">Sui</a>
           </div>
+          {
+            new Date() > new Date(2023, 7, 31) ?
+            <div className={styles.headerLink}>
+              <a href="https://portalbridge.com/cosmos">Cosmos</a>
+            </div>
+            : null
+          }
           <div className={styles.headerLink}>
-            <a href="https://docs.wormhole.com/wormhole/faqs">FAQ</a>
+            <a href="https://portalbridge.com/docs">FAQ</a>
           </div>
           <div className={styles.headerLink}>
             <a href="https://wormhole.com/">Wormhole</a>
