@@ -51,7 +51,7 @@ const getChainId = (chain: IChain) =>
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("ETH");
-  const [destination, setDestination] = useState<IChain>("ARBITRUM");
+  const [destination, setDestination] = useState<IChain>("OPTIMISM");
 
   const sourceChainId = getChainId(source);
   const destinationChainId = getChainId(destination);
@@ -568,16 +568,21 @@ export default function Home() {
         </div>
         <div className={styles.headerInteractions}>
           <div className={styles.headerLink}>
-            <a href="https://www.portalbridge.com/#/transfer">Token Bridge</a>
+            <a href="https://portalbridge.com/#/transfer">Token Bridge</a>
           </div>
           <div className={styles.headerLink}>
-            <a href="https://www.portalbridge.com/usdc-bridge">USDC Bridge</a>
+            <a href="https://portalbridge.com/usdc-bridge">USDC</a>
           </div>
           <div className={styles.headerLink}>
-            <a href="https://www.portalbridge.com/sui">Sui Bridge</a>
+            <a href="https://portalbridge.com/sui">Sui</a>
           </div>
+          {new Date() > new Date(2023, 7, 31) ? (
+            <div className={styles.headerLink}>
+              <a href="https://portalbridge.com/cosmos">Cosmos</a>
+            </div>
+          ) : null}
           <div className={styles.headerLink}>
-            <a href="https://docs.wormhole.com/wormhole/faqs">FAQ</a>
+            <a href="https://portalbridge.com/docs">FAQ</a>
           </div>
           <div className={styles.headerLink}>
             <a href="https://wormhole.com/">Wormhole</a>
