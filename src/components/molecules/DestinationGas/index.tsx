@@ -20,7 +20,7 @@ const DestinationGas = ({ gas, onChange, maxDestinationGas, estimatedGas, destin
       <div className={styles.gasContainer}>
         <div className={styles.gasTitle}>
           <span>Add destination gas</span>
-          <Tooltip text="Convert some USDC to ETH, AVAX or ARB and use it as gas to pay for transaction fees on the destination network.">
+          <Tooltip text="Convert some USDC to ETH or AVAX and use it as gas to pay for transaction fees on the destination network.">
             <Image className={styles.question} src={`${process.env.NEXT_PUBLIC_BASE_PATH}/question_white.png`} width={16} height={17} alt="tooltip" />
           </Tooltip>
         </div>
