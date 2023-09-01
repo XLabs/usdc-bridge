@@ -23,7 +23,7 @@ export const USDC_DECIMALS = 6;
 export const ARBITRUM_EXPLORER = isMainnet ? "https://arbiscan.io/tx/" : "https://goerli.arbiscan.io/tx/";
 export const AVAX_EXPLORER = isMainnet ? "https://snowtrace.io/tx/" : "https://testnet.snowtrace.io/tx/";
 export const ETH_EXPLORER = isMainnet ? "https://etherscan.io/tx/" : "https://goerli.etherscan.io/tx/";
-export const OPTIMISM_EXPLORER = isMainnet ? "https://optimistic.etherscan.io/" : "https://goerli-optimism.etherscan.io/";
+export const OPTIMISM_EXPLORER = isMainnet ? "https://optimistic.etherscan.io/tx/" : "https://goerli-optimism.etherscan.io/tx/";
 
 export const getRelayFeedbackUrl = (att: number) => {
   if (typeof window !== "undefined") {
