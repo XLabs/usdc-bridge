@@ -2,7 +2,7 @@ import Head from "next/head";
 
 const HeadAndMetadata = () => (
   <Head>
-    <title>USDC Bridge | Cross-Chain USDC Transfer</title>
+    <title>USDC Bridge: Native Cross-Chain USDC Transfers</title>
     <meta
       name="description"
       content="Bridge USDC natively between blockchains for free. Send or transfer USDC between Ethereum, Arbitrum, Avalanche and Optimism powered by Circle's Cross-Chain Transfer Protocol."
@@ -10,7 +10,7 @@ const HeadAndMetadata = () => (
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta property="og:url" content={`${process.env.NEXT_PUBLIC_BASE_PATH}`} />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="USDC Bridge: Cross-Chain USDC Transfers" />
+    <meta property="og:title" content="USDC Bridge: Native Cross-Chain USDC Transfers" />
     <meta
       property="og:description"
       content="Bridge or transfer native USDC between Ethereum, Arbitrum, Avalanche and Optimism powered by Circle's CCTP."
@@ -20,7 +20,7 @@ const HeadAndMetadata = () => (
     <meta name="twitter:card" content="summary_large_image" />
     <meta property="twitter:domain" content="https://www.portalbridge.com/" />
     <meta property="twitter:url" content={`${process.env.NEXT_PUBLIC_BASE_PATH}`} />
-    <meta name="twitter:title" content="USDC Bridge: Cross-Chain USDC Transfers" />
+    <meta name="twitter:title" content="USDC Bridge: Native Cross-Chain USDC Transfers" />
     <meta
       name="twitter:description"
       content="Bridge or transfer native USDC between Ethereum, Arbitrum, Avalanche and Optimism powered by Circle's CCTP."
