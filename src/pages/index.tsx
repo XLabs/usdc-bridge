@@ -3,27 +3,26 @@ import styles from "@/pages/app.module.scss";
 import { useCallback, useEffect, useState } from "react";
 import {
   AMOUNT_DECIMALS,
-  ARBITRUM_EXPLORER,
-  AVAX_EXPLORER,
   CIRCLE_EMITTER_ADDRESSES,
-  ETH_EXPLORER,
   getEvmChainId,
-  getRelayFeedbackUrl,
   IChain,
   isMainnet,
-  OPTIMISM_EXPLORER,
-  RPCS_MAINNET,
   RPCS_TESTNET,
+  RPCS_MAINNET,
   USDC_ADDRESSES_MAINNET,
   USDC_ADDRESSES_TESTNET,
   USDC_DECIMALS,
   USDC_RELAYER_MAINNET,
   USDC_RELAYER_TESTNET,
+  ETH_EXPLORER,
+  AVAX_EXPLORER,
+  getRelayFeedbackUrl,
+  ARBITRUM_EXPLORER,
 } from "@/constants";
 import Chain from "@/components/molecules/Chain";
 import ExchangeChains from "@/components/atoms/ExchangeChains";
 import { useAccount, useBalance, useConnect, useSigner, useSwitchNetwork } from "wagmi";
-import { arbitrum, arbitrumGoerli, avalanche, avalancheFuji, goerli, mainnet, optimism, optimismGoerli } from "wagmi/chains";
+import { avalanche, avalancheFuji, goerli, mainnet, arbitrum, arbitrumGoerli } from "wagmi/chains";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { useDebounce } from "use-debounce";
 import Image from "next/image";
@@ -31,7 +30,7 @@ import USDCInput from "@/components/atoms/USDCInput";
 import DestinationGas from "@/components/molecules/DestinationGas";
 import TransactionDetail from "@/components/atoms/TransactionDetail";
 import { Contract, ethers, Signer } from "ethers";
-import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH, CHAIN_ID_OPTIMISM } from "@certusone/wormhole-sdk";
+import { CHAIN_ID_ARBITRUM, CHAIN_ID_AVAX, CHAIN_ID_ETH } from "@certusone/wormhole-sdk";
 import { formatUnits, hexZeroPad, parseUnits } from "ethers/lib/utils.js";
 import useAllowance from "@/utils/useAllowance";
 import { errorToast, infoToast, successToast } from "@/utils/toast";
@@ -45,13 +44,12 @@ const poppins = Poppins({
   subsets: ["latin"],
 });
 const VAA_URL = isMainnet ? "https://api.wormscan.io/api/v1/vaas?txHash=" : "https://api.testnet.wormscan.io/api/v1/vaas?txHash=";
-const chainList = isMainnet ? [arbitrum, avalanche, mainnet, optimism] : [arbitrumGoerli, avalancheFuji, goerli, optimismGoerli];
-const getChainId = (chain: IChain) =>
-  chain === "AVAX" ? CHAIN_ID_AVAX : chain === "ARBITRUM" ? CHAIN_ID_ARBITRUM : chain === "OPTIMISM" ? CHAIN_ID_OPTIMISM : CHAIN_ID_ETH;
+const chainList = isMainnet ? [avalanche, mainnet, arbitrum] : [avalancheFuji, goerli, arbitrumGoerli];
+const getChainId = (chain: IChain) => (chain === "AVAX" ? CHAIN_ID_AVAX : chain === "ARBITRUM" ? CHAIN_ID_ARBITRUM : CHAIN_ID_ETH);
 
 export default function Home() {
   const [source, setSource] = useState<IChain>("ETH");
-  const [destination, setDestination] = useState<IChain>("OPTIMISM");
+  const [destination, setDestination] = useState<IChain>("ARBITRUM");
 
   const sourceChainId = getChainId(source);
   const destinationChainId = getChainId(destination);
@@ -501,8 +499,6 @@ export default function Home() {
                   ? `${AVAX_EXPLORER}${destinationTxHash}`
                   : destination === "ETH"
                   ? `${ETH_EXPLORER}${destinationTxHash}`
-                  : destination === "OPTIMISM"
-                  ? `${OPTIMISM_EXPLORER}${destinationTxHash}`
                   : `${ARBITRUM_EXPLORER}${destinationTxHash}`
               }
             >
@@ -559,6 +555,12 @@ export default function Home() {
     }
   }, [switchingNetwork, isProcessingApproval, isTransfering, isFetchingAllowance]);
 
+  // To show Optimism option on SEPT 4th 2023
+  const subtitle =
+    new Date() < new Date(2023, 8, 4)
+      ? "Bridge and send native USDC between Ethereum, Avalanche and Arbitrum through the official "
+      : "Bridge and send native USDC between Ethereum, Avalanche, Arbitrum and Optimism through the official ";
+
   return (
     <main className={`${styles.main} ${poppins.className}`}>
       <header className={styles.header}>
@@ -576,11 +578,13 @@ export default function Home() {
           <div className={styles.headerLink}>
             <a href="https://portalbridge.com/sui">Sui</a>
           </div>
-          {new Date() > new Date(2023, 7, 31) ? (
+          {
+            new Date() > new Date(2023, 7, 31) ?
             <div className={styles.headerLink}>
               <a href="https://portalbridge.com/cosmos">Cosmos</a>
             </div>
-          ) : null}
+            : null
+          }
           <div className={styles.headerLink}>
             <a href="https://portalbridge.com/docs">FAQ</a>
           </div>
@@ -595,7 +599,7 @@ export default function Home() {
           <span>USDC Bridge</span>
         </h2>
         <h3 className={styles.subtitle}>
-          <span>Bridge and send native USDC between Ethereum, Avalanche, Arbitrum and Optimism through the official </span>
+          <span>{subtitle} </span>
           <Tooltip text="Cross-Chain Transfer Protocol (CCTP) is a permissionless on-chain utility that can burn native USDC on a source chain and mint native USDC of the same amount on a destination chain.">
             <a target="__blank" href="https://developers.circle.com/stablecoin/docs" className={styles.CCTP}>
               CCTP
