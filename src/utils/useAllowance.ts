@@ -1,4 +1,4 @@
-import { USDC_DECIMALS, getEvmChainId } from "@/constants";
+import { USDC_DECIMALS } from "@/constants";
 import { approveEth, getAllowanceEth } from "@certusone/wormhole-sdk";
 import { BigNumber, Contract, ethers } from "ethers";
 import { formatUnits, parseUnits } from "ethers/lib/utils.js";
@@ -7,8 +7,8 @@ import { errorToast, infoToast, successToast } from "./toast";
 
 export default function useAllowance(
   signer: ethers.Signer,
-  sourceChainId: 2 | 6 | 23,
-  destinationChainId: 2 | 6 | 23,
+  sourceChainId: 2 | 6 | 23 | 24,
+  destinationChainId: 2 | 6 | 23 | 24,
   tokenAddress: string,
   transferAmount: string,
   sourceRelayContract: string,

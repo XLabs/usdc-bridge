@@ -13,6 +13,7 @@ const getChainImg = (chain: IChain) => {
   if (chain === "ETH") return `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`;
   if (chain === "AVAX") return `${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`;
   if (chain === "ARBITRUM") return `${process.env.NEXT_PUBLIC_BASE_PATH}/arbitrum.svg`;
+  if (chain === "OPTIMISM") return `${process.env.NEXT_PUBLIC_BASE_PATH}/optimism.svg`;
   return "";
 };
 
@@ -20,22 +21,55 @@ const getChainTxt = (chain: IChain) => {
   if (chain === "ETH") return "Ethereum";
   if (chain === "AVAX") return "Avalanche";
   if (chain === "ARBITRUM") return "Arbitrum";
+  if (chain === "OPTIMISM") return "Optimism";
   return "";
 };
 
 const Chain = ({ selected, changeChain }: Props) => {
-  const optionsTxts = selected === "AVAX" ? ["Ethereum", "Arbitrum"] : selected === "ETH" ? ["Avalanche", "Arbitrum"] : ["Avalanche", "Ethereum"];
-  const optionsChains: IChain[] = selected === "AVAX" ? ["ETH", "ARBITRUM"] : selected === "ETH" ? ["AVAX", "ARBITRUM"] : ["AVAX", "ETH"];
+  const optionsTxts =
+    selected === "AVAX"
+      ? ["Arbitrum", "Ethereum", "Optimism"]
+      : selected === "ETH"
+      ? ["Arbitrum", "Avalanche", "Optimism"]
+      : selected === "OPTIMISM"
+      ? ["Arbitrum", "Avalanche", "Ethereum"]
+      : ["Avalanche", "Ethereum", "Optimism"];
+
+  const optionsChains: IChain[] =
+    selected === "AVAX"
+      ? ["ARBITRUM", "ETH", "OPTIMISM"]
+      : selected === "ETH"
+      ? ["ARBITRUM", "AVAX", "OPTIMISM"]
+      : selected === "OPTIMISM"
+      ? ["ARBITRUM", "AVAX", "ETH"]
+      : ["AVAX", "ETH", "OPTIMISM"];
 
   const optionImgSrcs =
     selected === "AVAX"
-      ? [`${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`, `${process.env.NEXT_PUBLIC_BASE_PATH}/arbitrum.svg`]
+      ? [
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/arbitrum.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/optimism.svg`,
+        ]
       : selected === "ETH"
-      ? [`${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`, `${process.env.NEXT_PUBLIC_BASE_PATH}/arbitrum.svg`]
-      : [`${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`, `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`];
+      ? [
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/arbitrum.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/optimism.svg`,
+        ]
+      : selected === "OPTIMISM"
+      ? [
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/arbitrum.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`,
+        ]
+      : [
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/avalanche.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/ethereum.svg`,
+          `${process.env.NEXT_PUBLIC_BASE_PATH}/optimism.svg`,
+        ];
 
   const [opacity, setOpacity] = useState(0);
-
   const [imgSrc, setImgSrc] = useState(getChainImg(selected));
   const [txt, setTxt] = useState(getChainTxt(selected));
 
